@@ -2,6 +2,7 @@
 #include "KeyStore.h"
 
 #include "stdlib.h"
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -12,34 +13,11 @@ static key_store_t key_store;
 
 
 static
-int name_compare(key_name_t const a, key_name_t const b)
-{
-    for (unsigned int k = 0; k < KEY_NAME_SIZE; k++)
-    {
-        if (a.name[k] != b.name[k])
-        {
-            return -1;
-        }
-    }
-
-    return 0;
-}
-
-
-static
 void reset_element_key(unsigned int index)
 {
     key_store.element_store[index].key.size = 0;
-
-    for (unsigned int k = 0; k < KEY_NAME_SIZE; k++)
-    {
-        key_store.element_store[index].key.name.name[k] = '\0';
-    }
-
-    for (unsigned int k = 0; k < KEY_DATA_SIZE; k++)
-    {
-        key_store.element_store[index].key.data.data[k] = '\0';
-    }
+    memset(key_store.element_store[index].key.name, 0, KEY_NAME_SIZE);
+    memset(key_store.element_store[index].key.data, 0, KEY_DATA_SIZE);
 }
 
 
@@ -58,13 +36,18 @@ void delete_element(unsigned int index)
 }
 
 static
-unsigned int find_element(key_name_t const name)
+unsigned int find_element(const char name [KEY_NAME_SIZE])
 {
+    if (name == NULL)
+    {
+        return NR_ELEMENTS;
+    }
+
     for (unsigned int k = 0; k < NR_ELEMENTS; k++)
     {
         if (!key_store.element_store[k].admin.is_free)
         {
-            if (0 == name_compare(name, key_store.element_store[k].key.name))
+            if (0 == memcmp(name, (void *) key_store.element_store[k].key.name, KEY_NAME_SIZE))
             {
                 return k;
             }
@@ -152,14 +135,21 @@ int key_store_add(unsigned int app_id, key_record_t const *key, unsigned int *in
     key_store.element_store[element_index].admin.app_id = app_id;
     key_store.element_store[element_index].admin.is_free = 0;
 
-    key_store.element_store[element_index].key = *key;
+    memcpy(key_store.element_store[element_index].key.name, key->name, KEY_NAME_SIZE);
+    key_store.element_store[element_index].key.size = key->size;
+    memcpy(key_store.element_store[element_index].key.data, key->data, key->size);
 
     return 0;
 }
 
 
-int key_store_get(unsigned int app_id, key_name_t const name, key_record_t *key, unsigned int *index)
+int key_store_get(unsigned int app_id, const char name [KEY_NAME_SIZE], key_record_t *key, unsigned int *index)
 {
+    if (name == NULL)
+    {
+        return -1;
+    }
+
     if (key == NULL)
     {
         return -1;
@@ -189,7 +179,9 @@ int key_store_get(unsigned int app_id, key_name_t const name, key_record_t *key,
 
     *index = element_index;
 
-    *key = key_store.element_store[element_index].key;
+    memcpy(key->name, key_store.element_store[element_index].key.name, KEY_NAME_SIZE);
+    key->size = key_store.element_store[element_index].key.size;
+    memcpy(key->data, key_store.element_store[element_index].key.data, key->size);
 
     return 0;
 }
@@ -221,13 +213,20 @@ int key_store_get_by_index(unsigned int app_id, unsigned int index, key_record_t
         return -1;
     }
 
-    *key = key_store.element_store[index].key;
+    memcpy(key->name, key_store.element_store[index].key.name, KEY_NAME_SIZE);
+    key->size = key_store.element_store[index].key.size;
+    memcpy(key->data, key_store.element_store[index].key.data, key->size);
 
     return 0;
 }
 
-int key_store_delete(unsigned int app_id, key_name_t const name)
+int key_store_delete(unsigned int app_id, const char name [KEY_NAME_SIZE])
 {
+    if (name == NULL)
+    {
+        return -1;
+    }
+
     if (app_id > MAX_APP_ID)
     {
         return -1;

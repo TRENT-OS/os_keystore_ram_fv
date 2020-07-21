@@ -19,19 +19,16 @@ class Test_KeyStore : public testing::Test
 
 
 static
-int_key_name create_key_name(unsigned int app_id, unsigned int some_value)
+void create_key_name(unsigned int app_id, unsigned int some_value, char name[KEY_NAME_SIZE])
 {
     static char line[32];
 
-    int_key_name name;
-    for (unsigned int k = 0; k < KEY_NAME_SIZE; ++k)
+    for (unsigned int k = 0; k < KEY_NAME_SIZE; k++)
     {
-        name.name[k] = '\0';
+        name[k] = '\0';
     }
 
-    sprintf(name.name, "%08x:%08x", app_id, some_value);
-
-    return name;
+    sprintf(name, "%08x:%08x", app_id, some_value);
 }
 
 
@@ -40,11 +37,11 @@ key_record_t init_key_record(unsigned int app_id, unsigned int index)
 {
     key_record_t key_record;
 
-    key_record.name = create_key_name(app_id, index);
+    create_key_name(app_id, index, key_record.name);
     key_record.size = KEY_DATA_SIZE;
     for (unsigned int k = 0; k < KEY_DATA_SIZE; ++k)
     {
-        key_record.data.data[k] = (char)((app_id * index + k) % 256);
+        key_record.data[k] = (char)((app_id * index + k) % 256);
     }
     
     return key_record;
@@ -61,7 +58,7 @@ int compare_key_records(key_record_t a, key_record_t b)
 
     for (unsigned int k = 0; k < KEY_DATA_SIZE; ++k)
     {
-        if (a.data.data[k] != b.data.data[k])
+        if (a.data[k] != b.data[k])
         {
             return -1;
         }
@@ -69,7 +66,7 @@ int compare_key_records(key_record_t a, key_record_t b)
 
     for (unsigned int k = 0; k < KEY_NAME_SIZE; ++k)
     {
-        if (a.name.name[k] != b.name.name[k])
+        if (a.name[k] != b.name[k])
         {
             return -1;
         }
@@ -666,6 +663,9 @@ TEST(Test_KeyStore, get_catches_illegal_arguments)
     result = key_store_get(MAX_APP_ID + 1, key.name, &found_key, &found_index);
     ASSERT_TRUE(result != 0);
 
+    result = key_store_get(app_id, NULL, &found_key, &found_index);
+    ASSERT_TRUE(result != 0);
+
     result = key_store_get(app_id, key.name, NULL, &found_index);
     ASSERT_TRUE(result != 0);
 
@@ -723,6 +723,9 @@ TEST(Test_KeyStore, delete_catches_illegal_arguments)
     ASSERT_TRUE(result == 0);
 
     result = key_store_delete(MAX_APP_ID + 1, key.name);
+    ASSERT_TRUE(result != 0);
+
+    result = key_store_delete(app_id, NULL);
     ASSERT_TRUE(result != 0);
 
     result = key_store_delete(app_id, key.name);
