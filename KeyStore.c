@@ -12,21 +12,11 @@ static key_store_t key_store;
 
 
 static
-int name_compare(key_name_t const *a, key_name_t const *b)
+int name_compare(key_name_t const a, key_name_t const b)
 {
-    if (a == NULL)
-    {
-        return -1;
-    }
-
-    if (b == NULL)
-    {
-        return -1;
-    }
-
     for (unsigned int k = 0; k < KEY_NAME_SIZE; k++)
     {
-        if (a->name[k] != b->name[k])
+        if (a.name[k] != b.name[k])
         {
             return -1;
         }
@@ -68,18 +58,13 @@ void delete_element(unsigned int index)
 }
 
 static
-unsigned int find_element(key_name_t const *name)
+unsigned int find_element(key_name_t const name)
 {
-    if (name == NULL)
-    {
-        return NR_ELEMENTS;
-    }
-
     for (unsigned int k = 0; k < NR_ELEMENTS; k++)
     {
         if (!key_store.element_store[k].admin.is_free)
         {
-            if (0 == name_compare(name, &key_store.element_store[k].key.name))
+            if (0 == name_compare(name, key_store.element_store[k].key.name))
             {
                 return k;
             }
@@ -148,7 +133,7 @@ int key_store_add(unsigned int app_id, key_record_t const *key, unsigned int *in
         return -1;
     }
 
-    if (NR_ELEMENTS > find_element(&key->name))
+    if (NR_ELEMENTS > find_element(key->name))
     {
         return -1;
     }
@@ -173,13 +158,8 @@ int key_store_add(unsigned int app_id, key_record_t const *key, unsigned int *in
 }
 
 
-int key_store_get(unsigned int app_id, key_name_t const *name, key_record_t *key, unsigned int *index)
+int key_store_get(unsigned int app_id, key_name_t const name, key_record_t *key, unsigned int *index)
 {
-    if (name == NULL)
-    {
-        return -1;
-    }
-
     if (key == NULL)
     {
         return -1;
@@ -246,13 +226,8 @@ int key_store_get_by_index(unsigned int app_id, unsigned int index, key_record_t
     return 0;
 }
 
-int key_store_delete(unsigned int app_id, key_name_t const *name)
+int key_store_delete(unsigned int app_id, key_name_t const name)
 {
-    if (name == NULL)
-    {
-        return -1;
-    }
-
     if (app_id > MAX_APP_ID)
     {
         return -1;

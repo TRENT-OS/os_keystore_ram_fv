@@ -168,7 +168,7 @@ TEST(Test_KeyStore, find_key_by_name_works)
 
     key_record_t found_key;
     unsigned int found_index;
-    result = key_store_get(app_id, &key.name, &found_key, &found_index);
+    result = key_store_get(app_id, key.name, &found_key, &found_index);
     ASSERT_TRUE(result == 0);
 
     result = compare_key_records(key, found_key);
@@ -212,7 +212,7 @@ TEST(Test_KeyStore, find_key_by_name_with_wrong_id_fails)
 
     key_record_t found_key;
     unsigned int found_index;
-    result = key_store_get(app_id + 1, &key.name, &found_key, &found_index);
+    result = key_store_get(app_id + 1, key.name, &found_key, &found_index);
     ASSERT_TRUE(result != 0);
 }
 
@@ -373,7 +373,7 @@ TEST(Test_KeyStore, find_by_name_works_with_key_store_filled_with_identical_app_
 
         unsigned int index;
         key_record_t found_key;
-        result = key_store_get(app_id, &key.name, &found_key, &index);
+        result = key_store_get(app_id, key.name, &found_key, &index);
         ASSERT_TRUE(result == 0);
 
         result = compare_key_records(key, found_key);
@@ -436,7 +436,7 @@ TEST(Test_KeyStore, find_by_name_works_with_key_store_filled_with_different_app_
 
         unsigned int index;
         key_record_t found_key;
-        result = key_store_get(app_id, &key.name, &found_key, &index);
+        result = key_store_get(app_id, key.name, &found_key, &index);
         ASSERT_TRUE(result == 0);
 
         result = compare_key_records(key, found_key);
@@ -464,16 +464,16 @@ TEST(Test_KeyStore, deleted_key_cannot_be_found_any_more)
     result = key_store_get_by_index(app_id, index, &found_key);
     ASSERT_TRUE(result == 0);
 
-    result = key_store_get(app_id, &key.name, &found_key, &found_index);
+    result = key_store_get(app_id, key.name, &found_key, &found_index);
     ASSERT_TRUE(result == 0);
 
-    result = key_store_delete(app_id, &key.name);
+    result = key_store_delete(app_id, key.name);
     ASSERT_TRUE(result == 0);
 
     result = key_store_get_by_index(app_id, index, &found_key);
     ASSERT_TRUE(result != 0);
 
-    result = key_store_get(app_id, &key.name, &found_key, &found_index);
+    result = key_store_get(app_id, key.name, &found_key, &found_index);
     ASSERT_TRUE(result != 0);
 }
 
@@ -506,7 +506,7 @@ TEST(Test_KeyStore, key_deletion_works_independent_of_app_id)
             }
         }
 
-        result = key_store_delete(app_id, &key_to_be_deleted.name);
+        result = key_store_delete(app_id, key_to_be_deleted.name);
         ASSERT_TRUE(result == 0);
 
         key_record_t key = init_key_record(app_id, NR_ELEMENTS + 1);
@@ -530,7 +530,7 @@ TEST(Test_KeyStore, deletion_fails_with_wrong_app_id)
     result = key_store_add(app_id, &key, &index);
     ASSERT_TRUE(result == 0);
 
-    result = key_store_delete(app_id + 1, &key.name);
+    result = key_store_delete(app_id + 1, key.name);
     ASSERT_TRUE(result != 0);
 }
 
@@ -565,7 +565,7 @@ TEST(Test_KeyStore, empty_slot_from_deletion_can_be_filled_with_any_app_id)
         unsigned int key_to_be_deleted_app_id = app_id;
         for (unsigned int k = 0; k <= MAX_APP_ID; ++k)
         {
-            result = key_store_delete(key_to_be_deleted_app_id, &key_to_be_deleted.name);
+            result = key_store_delete(key_to_be_deleted_app_id, key_to_be_deleted.name);
             ASSERT_TRUE(result == 0);
 
             key_record_t key = init_key_record(k, NR_ELEMENTS + 1 + k);
@@ -607,7 +607,7 @@ TEST(Test_KeyStore, delete_add_on_full_key_store_involves_identical_index)
             }
         }
 
-        result = key_store_delete(app_id, &key_to_be_deleted.name);
+        result = key_store_delete(app_id, key_to_be_deleted.name);
         ASSERT_TRUE(result == 0);
 
         key_record_t key = init_key_record(app_id, NR_ELEMENTS + 1);
@@ -660,19 +660,16 @@ TEST(Test_KeyStore, get_catches_illegal_arguments)
     key_record_t found_key;
     unsigned int found_index;
 
-    result = key_store_get(app_id, &key.name, &found_key, &found_index);
+    result = key_store_get(app_id, key.name, &found_key, &found_index);
     ASSERT_TRUE(result == 0);
 
-    result = key_store_get(MAX_APP_ID + 1, &key.name, &found_key, &found_index);
+    result = key_store_get(MAX_APP_ID + 1, key.name, &found_key, &found_index);
     ASSERT_TRUE(result != 0);
 
-    result = key_store_get(app_id, NULL, &found_key, &found_index);
+    result = key_store_get(app_id, key.name, NULL, &found_index);
     ASSERT_TRUE(result != 0);
 
-    result = key_store_get(app_id, &key.name, NULL, &found_index);
-    ASSERT_TRUE(result != 0);
-
-    result = key_store_get(app_id, &key.name, &found_key, NULL);
+    result = key_store_get(app_id, key.name, &found_key, NULL);
     ASSERT_TRUE(result != 0);
 }
 
@@ -722,16 +719,13 @@ TEST(Test_KeyStore, delete_catches_illegal_arguments)
     key_record_t found_key;
     unsigned int found_index;
 
-    result = key_store_get(app_id, &key.name, &found_key, &found_index);
+    result = key_store_get(app_id, key.name, &found_key, &found_index);
     ASSERT_TRUE(result == 0);
 
-    result = key_store_delete(MAX_APP_ID + 1, &key.name);
+    result = key_store_delete(MAX_APP_ID + 1, key.name);
     ASSERT_TRUE(result != 0);
 
-    result = key_store_delete(app_id, NULL);
-    ASSERT_TRUE(result != 0);
-
-    result = key_store_delete(app_id, &key.name);
+    result = key_store_delete(app_id, key.name);
     ASSERT_TRUE(result == 0);
 }
 
