@@ -24,7 +24,7 @@ int name_compare(key_name_t const *a, key_name_t const *b)
         return -1;
     }
 
-    for (unsigned int k = 0; k < KEY_NAME_SIZE; ++k)
+    for (unsigned int k = 0; k < KEY_NAME_SIZE; k++)
     {
         if (a->name[k] != b->name[k])
         {
