@@ -90,7 +90,7 @@ unsigned int find_element(key_name_t const *name)
 }
 
 static
-unsigned int find_free_element()
+unsigned int find_free_element(void)
 {
     for (unsigned int k = 0; k < NR_ELEMENTS; k++)
     {
