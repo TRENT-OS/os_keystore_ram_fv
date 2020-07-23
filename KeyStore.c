@@ -94,96 +94,88 @@ void key_store_wipe(void)
 }
 
 
-int key_store_add(unsigned int app_id, key_record_t const *key, unsigned int *index)
+key_store_result_t key_store_add(unsigned int app_id, key_record_t const *key)
 {
+    key_store_result_t result = {-1, NR_ELEMENTS};
+
     if (key == NULL)
     {
-        return -1;
-    }
-
-    if (index == NULL)
-    {
-        return -1;
+        return result;
     }
 
     if (app_id > MAX_APP_ID)
     {
-        return -1;
+        return result;
     }
 
     if (0 == key_store.free_slots)
     {
-        return -1;
+        return result;
     }
 
     if (NR_ELEMENTS > find_element(key->name))
     {
-        return -1;
+        return result;
     }
 
-    unsigned int element_index = find_free_element();
+    result.index = find_free_element();
 
-    if (NR_ELEMENTS == element_index)
+    if (NR_ELEMENTS == result.index)
     {
-        return -1;
+        return result;
     }
-
-    *index = element_index;
 
     key_store.free_slots -= 1;
 
-    key_store.element_store[element_index].admin.app_id = app_id;
-    key_store.element_store[element_index].admin.is_free = 0;
+    key_store.element_store[result.index].admin.app_id = app_id;
+    key_store.element_store[result.index].admin.is_free = 0;
 
-    memcpy(key_store.element_store[element_index].key.name, key->name, KEY_NAME_SIZE);
-    key_store.element_store[element_index].key.size = key->size;
-    memcpy(key_store.element_store[element_index].key.data, key->data, key->size);
+    memcpy(key_store.element_store[result.index].key.name, key->name, KEY_NAME_SIZE);
+    key_store.element_store[result.index].key.size = key->size;
+    memcpy(key_store.element_store[result.index].key.data, key->data, key->size);
 
-    return 0;
+    result.error = 0;
+    return result;
 }
 
 
-int key_store_get(unsigned int app_id, const char name [KEY_NAME_SIZE], key_record_t *key, unsigned int *index)
+key_store_result_t key_store_get(unsigned int app_id, const char name [KEY_NAME_SIZE], key_record_t *key)
 {
+    key_store_result_t result = {-1, NR_ELEMENTS};
+
     if (name == NULL)
     {
-        return -1;
+        return result;
     }
 
     if (key == NULL)
     {
-        return -1;
-    }
-
-    if (index == NULL)
-    {
-        return -1;
+        return result;
     }
 
     if (app_id > MAX_APP_ID)
     {
-        return -1;
+        return result;
     }
 
-    unsigned int element_index = find_element(name);
+    result.index = find_element(name);
 
-    if (NR_ELEMENTS == element_index)
+    if (NR_ELEMENTS == result.index)
     {
-        return -1;
+        return result;
     }
 
-    if (app_id != key_store.element_store[element_index].admin.app_id)
+    if (app_id != key_store.element_store[result.index].admin.app_id)
     {
-        return -1;
+        return result;
     }
 
-    *index = element_index;
+    memcpy(key->name, key_store.element_store[result.index].key.name, KEY_NAME_SIZE);
+    key->size = key_store.element_store[result.index].key.size;
+    memcpy(key->data, key_store.element_store[result.index].key.data, key->size);
 
-    memcpy(key->name, key_store.element_store[element_index].key.name, KEY_NAME_SIZE);
-    key->size = key_store.element_store[element_index].key.size;
-    memcpy(key->data, key_store.element_store[element_index].key.data, key->size);
-
-    return 0;
+    result.error = 0;
+    return result;
 }
 
 int key_store_get_by_index(unsigned int app_id, unsigned int index, key_record_t *key)

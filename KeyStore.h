@@ -32,11 +32,15 @@ typedef struct int_key_store {
     element_record_t element_store[NR_ELEMENTS];
 } key_store_t;
 
+typedef struct int_key_store_result {
+    signed error;
+    unsigned index;
+} key_store_result_t;
 
 void key_store_init(void);
 void key_store_wipe(void);
-int key_store_add(unsigned int app_id, key_record_t const *key, unsigned int *index);
-int key_store_get(unsigned int app_id, const char name [KEY_NAME_SIZE], key_record_t *key, unsigned int *index);
+key_store_result_t key_store_add(unsigned int app_id, key_record_t const *key);
+key_store_result_t key_store_get(unsigned int app_id, const char name [KEY_NAME_SIZE], key_record_t *key);
 int key_store_get_by_index(unsigned int app_id, unsigned int index, key_record_t *key);
 int key_store_delete(unsigned int app_id, const char name [KEY_NAME_SIZE]);
 
