@@ -38,7 +38,6 @@ key_record_t init_key_record(unsigned int app_id, unsigned int index)
     key_record_t key_record;
 
     create_key_name(app_id, index, key_record.name);
-    key_record.size = KEY_DATA_SIZE;
     for (unsigned int k = 0; k < KEY_DATA_SIZE; ++k)
     {
         key_record.data[k] = (char)((app_id * index + k) % 256);
@@ -51,11 +50,6 @@ key_record_t init_key_record(unsigned int app_id, unsigned int index)
 static
 int compare_key_records(key_record_t a, key_record_t b)
 {
-    if (a.size != b.size)
-    {
-        return -1;
-    }
-
     for (unsigned int k = 0; k < KEY_DATA_SIZE; ++k)
     {
         if (a.data[k] != b.data[k])

@@ -14,7 +14,6 @@ static key_store_t key_store;
 static
 void reset_element_key(unsigned int index)
 {
-    key_store.element_store[index].key.size = 0;
     memset(key_store.element_store[index].key.name, 0, KEY_NAME_SIZE);
     memset(key_store.element_store[index].key.data, 0, KEY_DATA_SIZE);
 }
@@ -131,8 +130,7 @@ key_store_result_t key_store_add(unsigned int app_id, key_record_t const *key)
     key_store.element_store[result.index].admin.is_free = 0;
 
     memcpy(key_store.element_store[result.index].key.name, key->name, KEY_NAME_SIZE);
-    key_store.element_store[result.index].key.size = key->size;
-    memcpy(key_store.element_store[result.index].key.data, key->data, key->size);
+    memcpy(key_store.element_store[result.index].key.data, key->data, KEY_DATA_SIZE);
 
     result.error = 0;
     return result;
@@ -166,8 +164,7 @@ key_store_result_t key_store_get(unsigned int app_id, const char name [KEY_NAME_
     }
 
     memcpy(key->name, key_store.element_store[result.index].key.name, KEY_NAME_SIZE);
-    key->size = key_store.element_store[result.index].key.size;
-    memcpy(key->data, key_store.element_store[result.index].key.data, key->size);
+    memcpy(key->data, key_store.element_store[result.index].key.data, KEY_DATA_SIZE);
 
     result.error = 0;
     return result;
@@ -201,8 +198,7 @@ int key_store_get_by_index(unsigned int app_id, unsigned int index, key_record_t
     }
 
     memcpy(key->name, key_store.element_store[index].key.name, KEY_NAME_SIZE);
-    key->size = key_store.element_store[index].key.size;
-    memcpy(key->data, key_store.element_store[index].key.data, key->size);
+    memcpy(key->data, key_store.element_store[index].key.data, KEY_DATA_SIZE);
 
     return 0;
 }

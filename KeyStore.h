@@ -10,7 +10,6 @@
 typedef struct int_key_record {
     char name[KEY_NAME_SIZE];
     char data[KEY_DATA_SIZE];
-    unsigned int size;	
 } key_record_t;        
 
 
