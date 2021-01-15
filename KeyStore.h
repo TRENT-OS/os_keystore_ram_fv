@@ -14,7 +14,6 @@ typedef struct int_key_record {
 
 
 typedef struct int_element_admin {
-    unsigned int index;
     unsigned int is_free;
     unsigned int app_id;
 } element_admin_t;

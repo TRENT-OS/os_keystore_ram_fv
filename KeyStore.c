@@ -76,7 +76,6 @@ void key_store_init(void)
     key_store.free_slots = NR_ELEMENTS;
     for (unsigned int k = 0; k < NR_ELEMENTS; k++)
     {
-        key_store.element_store[k].admin.index = k;
         key_store.element_store[k].admin.is_free = 1;
         key_store.element_store[k].admin.app_id = 0;
         reset_element_key(k);
