@@ -1,8 +1,7 @@
 
 #include "KeyStore.h"
 
-#include "stdlib.h"
-#include <string.h>
+#include "fv_stdlib.h"
 
 #ifdef __cplusplus
 extern "C"
