@@ -39,6 +39,6 @@ void key_store_init(void);
 void key_store_wipe(void);
 key_store_result_t key_store_add(unsigned int app_id, key_record_t const *key);
 key_store_result_t key_store_get(unsigned int app_id, const char name [KEY_NAME_SIZE], key_record_t *key);
-int key_store_get_by_index(unsigned int app_id, unsigned int index, key_record_t *key);
-int key_store_delete(unsigned int app_id, const char name [KEY_NAME_SIZE]);
+unsigned int key_store_get_by_index(unsigned int app_id, unsigned int index, key_record_t *key);
+unsigned int key_store_delete(unsigned int app_id, const char name [KEY_NAME_SIZE]);
 

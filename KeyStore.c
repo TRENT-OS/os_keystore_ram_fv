@@ -169,7 +169,7 @@ key_store_result_t key_store_get(unsigned int app_id, const char name [KEY_NAME_
     return result;
 }
 
-int key_store_get_by_index(unsigned int app_id, unsigned int index, key_record_t *key)
+unsigned int key_store_get_by_index(unsigned int app_id, unsigned int index, key_record_t *key)
 {
     if (key == NULL)
     {
@@ -202,7 +202,7 @@ int key_store_get_by_index(unsigned int app_id, unsigned int index, key_record_t
     return 0;
 }
 
-int key_store_delete(unsigned int app_id, const char name [KEY_NAME_SIZE])
+unsigned int key_store_delete(unsigned int app_id, const char name [KEY_NAME_SIZE])
 {
     if (name == NULL)
     {
