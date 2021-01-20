@@ -35,7 +35,7 @@ void delete_element(unsigned int index)
 }
 
 static
-unsigned int find_element(const char name [KEY_NAME_SIZE])
+unsigned int find_element(const unsigned int app_id, const char name [KEY_NAME_SIZE])
 {
     if (name == NULL)
     {
@@ -46,7 +46,8 @@ unsigned int find_element(const char name [KEY_NAME_SIZE])
     {
         if (!key_store.element_store[k].admin.is_free)
         {
-            if (0 == memcmp(name, (void *) key_store.element_store[k].key.name, KEY_NAME_SIZE))
+            if (app_id == key_store.element_store[k].admin.app_id && 
+		0 == memcmp(name, (void *) key_store.element_store[k].key.name, KEY_NAME_SIZE))
             {
                 return k;
             }
@@ -112,7 +113,7 @@ key_store_result_t key_store_add(unsigned int app_id, key_record_t const *key)
         return result;
     }
 
-    if (NR_ELEMENTS > find_element(key->name))
+    if (NR_ELEMENTS > find_element(app_id, key->name))
     {
         return result;
     }
@@ -157,14 +158,9 @@ key_store_result_t key_store_get(unsigned int app_id, const char name [KEY_NAME_
         return result;
     }
 
-    result.index = find_element(name);
+    result.index = find_element(app_id, name);
 
     if (NR_ELEMENTS == result.index)
-    {
-        return result;
-    }
-
-    if (app_id != key_store.element_store[result.index].admin.app_id)
     {
         return result;
     }
@@ -223,14 +219,9 @@ int key_store_delete(unsigned int app_id, const char name [KEY_NAME_SIZE])
         return -1;
     }
 
-    unsigned int element_index = find_element(name);
+    unsigned int element_index = find_element(app_id, name);
 
     if (NR_ELEMENTS == element_index)
-    {
-        return -1;
-    }
-
-    if (app_id != key_store.element_store[element_index].admin.app_id)
     {
         return -1;
     }

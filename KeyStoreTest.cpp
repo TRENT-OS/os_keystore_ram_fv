@@ -43,7 +43,7 @@ key_record_t init_key_record(unsigned int app_id, unsigned int index)
     {
         key_record.data[k] = (char)((app_id * index + k) % 256);
     }
-    
+
     return key_record;
 }
 
@@ -205,7 +205,7 @@ TEST(Test_KeyStore, find_key_by_name_with_wrong_id_fails)
 
 
 // Expectation: adding a key does really only create one entry in the Key Store.
-// Test method: for an empty Key Store to which one key has been added: get_by_index with any 
+// Test method: for an empty Key Store to which one key has been added: get_by_index with any
 // combination of (app_id, index) succeeds precisely only once. This holds for all app_ids.
 TEST(Test_KeyStore, add_really_creates_only_one_key)
 {
@@ -286,7 +286,7 @@ TEST(Test_KeyStore, key_slot_is_not_restricted_to_app_id)
 
 
 // Expectation: keys added for an app_id have to have unique names.
-TEST(Test_KeyStore, key_cannot_be_added_twice)
+TEST(Test_KeyStore, key_cannot_be_added_twice_for_one_app_id)
 {
     key_store_init();
 
@@ -299,6 +299,22 @@ TEST(Test_KeyStore, key_cannot_be_added_twice)
 
     result = key_store_add(app_id, &key);
     ASSERT_TRUE(result.error != 0);
+}
+
+// Expectation: keys added for different app_ids do not have to have unique names.
+TEST(Test_KeyStore, key_can_be_added_twice_for_different_app_ids)
+{
+    key_store_init();
+
+    key_store_result_t result;
+    unsigned int app_id = 0;
+
+    key_record_t key = init_key_record(app_id, 0);
+    result = key_store_add(app_id, &key);
+    ASSERT_TRUE(result.error == 0);
+
+    result = key_store_add(app_id + 1, &key);
+    ASSERT_TRUE(result.error == 0);
 }
 
 // Expectation: when having a Key Store filled with keys of identical app_ids: find by index succeeds and is correct.
@@ -458,7 +474,7 @@ TEST(Test_KeyStore, deleted_key_cannot_be_found_any_more)
 TEST(Test_KeyStore, key_deletion_works_independent_of_app_id)
 {
     key_store_init();
-    
+
     for (unsigned int app_id = 0; app_id <= MAX_APP_ID; ++app_id)
     {
         key_store_wipe();
@@ -508,7 +524,7 @@ TEST(Test_KeyStore, deletion_fails_with_wrong_app_id)
 TEST(Test_KeyStore, empty_slot_from_deletion_can_be_filled_with_any_app_id)
 {
     key_store_init();
-    
+
     for (unsigned int app_id = 0; app_id <= MAX_APP_ID; ++app_id)
     {
         key_store_wipe();
@@ -549,7 +565,7 @@ TEST(Test_KeyStore, empty_slot_from_deletion_can_be_filled_with_any_app_id)
 TEST(Test_KeyStore, delete_add_on_full_key_store_involves_identical_index)
 {
     key_store_init();
-    
+
     for (unsigned int app_id = 0; app_id <= MAX_APP_ID; ++app_id)
     {
         key_store_wipe();
