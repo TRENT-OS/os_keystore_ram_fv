@@ -697,6 +697,39 @@ TEST(Test_KeyStore, delete_catches_illegal_arguments)
 }
 
 
+// Expectation: an existing read only key can be found successfully and correctly by its name.
+TEST(Test_KeyStore, find_read_only_key_by_name_works)
+{
+    unsigned int app_ids[1];
+    key_record_t keys[1];
+
+    app_ids[0] = 1;
+    keys[0] = init_key_record(app_ids[0], 0);
+
+    key_store_init_with_read_only_keys(app_ids, keys, 1);
+
+    key_record_t found_key;
+    key_store_result_t get_result = key_store_get(app_ids[0], keys[0].name, &found_key);
+    ASSERT_TRUE(get_result.error == 0);
+
+    int result = compare_key_records(keys[0], found_key);
+    ASSERT_TRUE(result == 0);
+}
+
+
+// Expectation: an existing read only key cannot be deleted.
+TEST(Test_KeyStore, delete_read_only_key_does_not_work)
+{
+    unsigned int app_ids[1];
+    key_record_t keys[1];
+
+    app_ids[0] = 1;
+    keys[0] = init_key_record(app_ids[0], 0);
+
+    int result = key_store_delete(app_ids[0], keys[0].name);
+    ASSERT_TRUE(result != 0);
+}
+
 int main(int argc, char* argv[])
 {
     testing::InitGoogleTest(&argc, argv);
