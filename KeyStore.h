@@ -9,7 +9,7 @@
 
 typedef struct int_key_record {
     unsigned int read_only;
-    char name[KEY_NAME_SIZE];
+    char name[KEY_NAME_SIZE];  
     char data[KEY_DATA_SIZE];
 } key_record_t;        
 
@@ -36,7 +36,7 @@ typedef struct int_key_store_result {
     unsigned index;
 } key_store_result_t;
 
-void key_store_init(void);
+void key_store_init (void);
 unsigned int key_store_init_with_read_only_keys(unsigned int const *app_ids, key_record_t const *keys, unsigned int nr_keys);
 void key_store_wipe(void);
 key_store_result_t key_store_add(unsigned int app_id, key_record_t const *key);

@@ -1,4 +1,3 @@
-
 #include "KeyStore.h"
 
 #include "fv_stdlib.h"
@@ -33,28 +32,31 @@ void delete_element(unsigned int index)
     }
 }
 
-
 static
-unsigned int find_element(const unsigned int app_id, const char name [KEY_NAME_SIZE])
+unsigned int find_element(unsigned int max, const unsigned int app_id, const char name [KEY_NAME_SIZE])
 {
     if (name == NULL)
     {
-        return NR_ELEMENTS;
+        return max;
+    }
+    if (max > NR_ELEMENTS)
+    {
+	    max = NR_ELEMENTS;
     }
 
-    for (unsigned int k = 0; k < NR_ELEMENTS; k++)
+    for (unsigned int k = 0; k < max; k++)
     {
         if (!key_store.element_store[k].admin.is_free)
         {
-            if (app_id == key_store.element_store[k].admin.app_id &&
-                0 == memcmp(name, (void *) key_store.element_store[k].key.name, KEY_NAME_SIZE))
+            if (app_id == key_store.element_store[k].admin.app_id && 
+		0 == memcmp(name, (void *) key_store.element_store[k].key.name, KEY_NAME_SIZE))
             {
                 return k;
             }
         }
     }
 
-    return NR_ELEMENTS;
+    return max;
 }
 
 static
@@ -71,54 +73,51 @@ unsigned int find_free_element(void)
     return NR_ELEMENTS;
 }
 
-
 void key_store_init(void)
 {
     key_store.free_slots = NR_ELEMENTS;
     for (unsigned int k = 0; k < NR_ELEMENTS; k++)
     {
-        key_store.element_store[k].admin.is_free = 1;
-        key_store.element_store[k].admin.app_id = 0;
-        reset_element_key(k);
+	key_store.element_store[k].admin.is_free = 1;
+	key_store.element_store[k].admin.app_id = 0;
+	reset_element_key(k);
     }
 }
 
-
 unsigned int key_store_init_with_read_only_keys(unsigned int const *app_ids, key_record_t const *keys, unsigned int nr_keys)
 {
+    unsigned int result = 0;
+
     if (nr_keys > NR_ELEMENTS)
     {
-        return -1;
-    }
-
-    key_store.free_slots = NR_ELEMENTS - nr_keys;
-    for (unsigned int k = 0; k < NR_ELEMENTS; k++)
-    {
-        key_store.element_store[k].admin.is_free = 1;
+        nr_keys = 0;
+	result = -1;
     }
 
     for (unsigned int k = 0; k < nr_keys; k++)
     {
-        if (find_element (app_ids[k], keys[k].name) < NR_ELEMENTS)
-        {
-            return -1;
-        }
-
+	// if there is a duplicate, return an empty keystore
+	if (find_element (k, app_ids[k], keys[k].name) < k)
+	{
+            nr_keys = 0;
+	    result = -1;
+	    break;
+	}
         key_store.element_store[k].admin.is_free = 0;
         key_store.element_store[k].admin.app_id = app_ids[k];
-        key_store.element_store[k].key.read_only = 1;
-        memcpy(key_store.element_store[k].key.name, keys[k].name, KEY_NAME_SIZE);
-        memcpy(key_store.element_store[k].key.data, keys[k].data, KEY_DATA_SIZE);
+	key_store.element_store[k].key.read_only = 1;
+    	memcpy(key_store.element_store[k].key.name, keys[k].name, KEY_NAME_SIZE);
+    	memcpy(key_store.element_store[k].key.data, keys[k].data, KEY_DATA_SIZE);
     }
-
     for (unsigned int k = nr_keys; k < NR_ELEMENTS; k++)
     {
+        key_store.element_store[k].admin.is_free = 1;
         key_store.element_store[k].admin.app_id = 0;
-        key_store.element_store[k].key.read_only = 0;
+	key_store.element_store[k].key.read_only = 0;
         reset_element_key(k);
     }
-
-    return 0;
+    key_store.free_slots = NR_ELEMENTS - nr_keys;
+    return result;
 }
 
 
@@ -126,8 +125,8 @@ void key_store_wipe(void)
 {
     for (unsigned int k = 0; k < NR_ELEMENTS; k++)
     {
-    if (!key_store.element_store[k].admin.is_free &&
-        !key_store.element_store[k].key.read_only)
+	if (!key_store.element_store[k].admin.is_free && 
+	    !key_store.element_store[k].key.read_only)
         {
             delete_element(k);
         }
@@ -154,7 +153,7 @@ key_store_result_t key_store_add(unsigned int app_id, key_record_t const *key)
         return result;
     }
 
-    if (NR_ELEMENTS > find_element(app_id, key->name))
+    if (NR_ELEMENTS > find_element(NR_ELEMENTS, app_id, key->name))
     {
         return result;
     }
@@ -168,8 +167,8 @@ key_store_result_t key_store_add(unsigned int app_id, key_record_t const *key)
 
     key_store.free_slots -= 1;
 
-    key_store.element_store[result.index].admin.app_id = app_id;
     key_store.element_store[result.index].admin.is_free = 0;
+    key_store.element_store[result.index].admin.app_id = app_id;
 
     key_store.element_store[result.index].key.read_only = 0;
     memcpy(key_store.element_store[result.index].key.name, key->name, KEY_NAME_SIZE);
@@ -178,7 +177,6 @@ key_store_result_t key_store_add(unsigned int app_id, key_record_t const *key)
     result.error = 0;
     return result;
 }
-
 
 key_store_result_t key_store_get(unsigned int app_id, const char name [KEY_NAME_SIZE], key_record_t *key)
 {
@@ -199,7 +197,7 @@ key_store_result_t key_store_get(unsigned int app_id, const char name [KEY_NAME_
         return result;
     }
 
-    result.index = find_element(app_id, name);
+    result.index = find_element(NR_ELEMENTS, app_id, name);
 
     if (NR_ELEMENTS == result.index)
     {
@@ -260,7 +258,7 @@ unsigned int key_store_delete(unsigned int app_id, const char name [KEY_NAME_SIZ
         return -1;
     }
 
-    unsigned int element_index = find_element(app_id, name);
+    unsigned int element_index = find_element(NR_ELEMENTS, app_id, name);
 
     if (NR_ELEMENTS == element_index)
     {
@@ -272,7 +270,7 @@ unsigned int key_store_delete(unsigned int app_id, const char name [KEY_NAME_SIZ
         return -1;
     }
 
-    delete_element(element_index);
+    delete_element(element_index);    
 
     return 0;
 }
