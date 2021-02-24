@@ -697,6 +697,70 @@ TEST(Test_KeyStore, delete_catches_illegal_arguments)
 }
 
 
+// Expectation: an existing read only key can be found successfully and correctly by its name.
+TEST(Test_KeyStore, find_read_only_key_by_name_works)
+{
+    unsigned int app_ids[1];
+    key_record_t keys[1];
+
+    app_ids[0] = 1;
+    keys[0] = init_key_record(app_ids[0], 0);
+
+    key_store_init_with_read_only_keys(app_ids, keys, 1);
+
+    key_record_t found_key;
+    key_store_result_t get_result = key_store_get(app_ids[0], keys[0].name, &found_key);
+    ASSERT_TRUE(get_result.error == 0);
+
+    int result = compare_key_records(keys[0], found_key);
+    ASSERT_TRUE(result == 0);
+}
+
+
+// Expectation: an existing read only key cannot be deleted.
+TEST(Test_KeyStore, delete_read_only_key_does_not_work)
+{
+    unsigned int app_ids[1];
+    key_record_t keys[1];
+
+    app_ids[0] = 1;
+    keys[0] = init_key_record(app_ids[0], 0);
+
+    int result = key_store_delete(app_ids[0], keys[0].name);
+    ASSERT_TRUE(result != 0);
+}
+
+// Expectation: initializing a Key Store with read only keys of which some are
+// duplicate keys fails but nevertheless initializes the Key Store in a way as
+// an ordinary initialization (= without using read only keys) would have done.
+TEST(Test_KeyStore, initialize_with_duplicate_read_only_keys_fails_properly)
+{
+    key_store_init();
+
+    unsigned int app_id = 0;
+
+    key_record_t key = init_key_record(app_id, 0);
+    key_store_result_t add_result = key_store_add(app_id, &key);
+    ASSERT_TRUE(add_result.error == 0);
+
+    unsigned int app_ids[2];
+    key_record_t keys[2];
+
+    app_ids[0] = app_ids[1] = 1;
+    keys[0] = init_key_record(app_ids[0], 0);
+    keys[1] = init_key_record(app_ids[1], 0);
+
+    unsigned int result = key_store_init_with_read_only_keys(app_ids, keys, 2);
+    ASSERT_TRUE(result == -1);
+
+    for (unsigned int l = 0; l < NR_ELEMENTS; ++l)
+    {
+        key_record_t key = init_key_record(app_id, l);
+        key_store_result_t result = key_store_add(app_id, &key);
+        ASSERT_TRUE(result.error == 0);
+    }
+}
+
 int main(int argc, char* argv[])
 {
     testing::InitGoogleTest(&argc, argv);
