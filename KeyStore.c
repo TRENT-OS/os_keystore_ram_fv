@@ -133,8 +133,8 @@ void key_store_wipe(void)
 {
     for (unsigned int k = 0; k < NR_ELEMENTS; k++)
     {
-    if (!key_store.element_store[k].admin.is_free &&
-        !key_store.element_store[k].key.read_only)
+        if (!key_store.element_store[k].admin.is_free &&
+            !key_store.element_store[k].key.read_only)
         {
             delete_element(k);
         }
@@ -175,8 +175,8 @@ key_store_result_t key_store_add(unsigned int app_id, key_record_t const *key)
 
     key_store.free_slots -= 1;
 
-    key_store.element_store[result.index].admin.app_id = app_id;
     key_store.element_store[result.index].admin.is_free = 0;
+    key_store.element_store[result.index].admin.app_id = app_id;
 
     key_store.element_store[result.index].key.read_only = 0;
     memcpy(key_store.element_store[result.index].key.name, key->name, KEY_NAME_SIZE);
