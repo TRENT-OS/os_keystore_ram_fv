@@ -1,0 +1,3 @@
+[submodule "stdlib"]
+	path = stdlib
+	url = ssh://git@bitbucket.hensoldt-cyber.systems:7999/fv/stdlib.git

@@ -1,7 +1,7 @@
 rm test
 rm *.o
 gcc -c -I../googletest/googletest/include KeyStoreTest.cpp
-gcc -c -I../googletest/googletest/include KeyStore.c
-g++ -o test KeyStore.o KeyStoreTest.o -Wl,-L/home/a/tmp/googletest/googletest/build/lib -Wl,-lgtest -Wl,-lpthread
+gcc -c -I../googletest/googletest/include -Istdlib KeyStore.c
+gcc -c -Istdlib stdlib/stdlib.c
+g++ -o test KeyStore.o KeyStoreTest.o stdlib.o -Wl,-L/home/a/tmp/googletest/googletest/build/lib -Wl,-lgtest -Wl,-lpthread
 ./test
-
