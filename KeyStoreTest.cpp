@@ -756,7 +756,8 @@ TEST(Test_KeyStore, find_read_only_key_by_name_works)
     app_ids[0] = 1;
     keys[0] = init_key_record(app_ids[0], 0);
 
-    key_store_init_with_read_only_keys(&key_store, app_ids, keys, 1);
+    unsigned int init_result = key_store_init_with_read_only_keys(&key_store, app_ids, keys, 1);
+    ASSERT_TRUE(init_result != -1);
 
     key_record_t found_key;
     key_store_result_t get_result = key_store_get(&key_store, app_ids[0], keys[0].name, &found_key);
@@ -777,7 +778,8 @@ TEST(Test_KeyStore, delete_read_only_key_does_not_work)
     app_ids[0] = 1;
     keys[0] = init_key_record(app_ids[0], 0);
 
-    key_store_init_with_read_only_keys(&key_store, app_ids, keys, 1);
+    unsigned int init_result = key_store_init_with_read_only_keys(&key_store, app_ids, keys, 1);
+    ASSERT_TRUE(init_result != -1);
 
     int result = key_store_delete(&key_store, app_ids[0], keys[0].name);
     ASSERT_TRUE(result != 0);
