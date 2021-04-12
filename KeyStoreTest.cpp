@@ -6,6 +6,8 @@
 #include <limits.h>
 #include <stdio.h>
 
+#include <vector>
+
 extern "C"
 {
 #include "KeyStore.h"
@@ -17,6 +19,19 @@ class Test_KeyStore : public testing::Test
     protected:
 };
 
+
+class KeyStore
+{
+    public:
+    KeyStore(unsigned int size = NR_ELEMENTS) : keystore_elements(size) {}
+    unsigned int size() const { keystore_elements.size(); }
+    element_record_t *get_element_buf() { return &keystore_elements[0]; }
+    key_store_t *operator & () {return &key_store;}
+
+    private:
+    std::vector<element_record_t> keystore_elements;
+    key_store_t key_store;
+};
 
 static
 void create_key_name(unsigned int app_id, unsigned int some_value, char name[KEY_NAME_SIZE])
@@ -73,13 +88,13 @@ int compare_key_records(key_record_t a, key_record_t b)
 // Expectation: a Key Store after Init() is empty - as observed by key_store_get_by_index.
 TEST(Test_KeyStore, empty_after_init)
 {
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
     for (unsigned int k = 0; k <= MAX_APP_ID; ++k)
     {
-        for (unsigned int j = 0; j < NR_ELEMENTS; ++j)
+        for (unsigned int j = 0; j < key_store.size(); ++j)
         {
             key_record_t key;
             int result = key_store_get_by_index(&key_store, k, j, &key);
@@ -92,7 +107,7 @@ TEST(Test_KeyStore, empty_after_init)
 // Expectation: calling Wipe() on an empty Key Store leaves it still empty.
 TEST(Test_KeyStore, still_empty_after_init_plus_wipe)
 {
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
@@ -100,7 +115,7 @@ TEST(Test_KeyStore, still_empty_after_init_plus_wipe)
 
     for (unsigned int k = 0; k <= MAX_APP_ID; ++k)
     {
-        for (unsigned int j = 0; j < NR_ELEMENTS; ++j)
+        for (unsigned int j = 0; j < key_store.size(); ++j)
         {
             key_record_t key;
             int result = key_store_get_by_index(&key_store, k, j, &key);
@@ -113,7 +128,7 @@ TEST(Test_KeyStore, still_empty_after_init_plus_wipe)
 // Expectation: adding a key to an empty Key Store succeeds.
 TEST(Test_KeyStore, add_key_to_empty_key_store_succeeds)
 {
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
@@ -128,7 +143,7 @@ TEST(Test_KeyStore, add_key_to_empty_key_store_succeeds)
 // Expectation: an existing key can be found successfully and correctly by its index.
 TEST(Test_KeyStore, find_key_by_index_works)
 {
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
@@ -152,7 +167,7 @@ TEST(Test_KeyStore, find_key_by_index_works)
 // Expectation: an existing key can be found successfully and correctly by its name.
 TEST(Test_KeyStore, find_key_by_name_works)
 {
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
@@ -175,7 +190,7 @@ TEST(Test_KeyStore, find_key_by_name_works)
 // Expectation: an existing key cannot be found successfully by its index if the app_id does not match.
 TEST(Test_KeyStore, find_key_by_index_with_wrong_id_fails)
 {
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
@@ -195,7 +210,7 @@ TEST(Test_KeyStore, find_key_by_index_with_wrong_id_fails)
 // Expectation: an existing key cannot be found successfully by its name if the app_id does not match.
 TEST(Test_KeyStore, find_key_by_name_with_wrong_id_fails)
 {
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
@@ -217,7 +232,7 @@ TEST(Test_KeyStore, find_key_by_name_with_wrong_id_fails)
 // combination of (app_id, index) succeeds precisely only once. This holds for all app_ids.
 TEST(Test_KeyStore, add_really_creates_only_one_key)
 {
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
@@ -232,7 +247,7 @@ TEST(Test_KeyStore, add_really_creates_only_one_key)
         unsigned int found = 0;
         for (unsigned int k = 0; k <= MAX_APP_ID; ++k)
         {
-            for (unsigned int j = 0; j < NR_ELEMENTS; ++j)
+            for (unsigned int j = 0; j < key_store.size(); ++j)
             {
                 key_record_t key;
                 if (0 == key_store_get_by_index(&key_store, k, j, &key))
@@ -252,11 +267,11 @@ TEST(Test_KeyStore, add_really_creates_only_one_key)
 TEST(Test_KeyStore, key_store_can_be_filled)
 {
     unsigned int app_id = 1;
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
-    for (unsigned int l = 0; l < NR_ELEMENTS; ++l)
+    for (unsigned int l = 0; l < key_store.size(); ++l)
     {
         key_record_t key = init_key_record(app_id, l);
         key_store_result_t result = key_store_add(&key_store, app_id, &key);
@@ -276,11 +291,11 @@ TEST(Test_KeyStore, key_store_can_be_filled)
 // Test method: adding keys with varying app_ids to an empty Key Store succeeds exactly capacity times.
 TEST(Test_KeyStore, key_slot_is_not_restricted_to_app_id)
 {
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
-    for (unsigned int l = 0; l < NR_ELEMENTS; ++l)
+    for (unsigned int l = 0; l < key_store.size(); ++l)
     {
         unsigned int app_id = l % MAX_APP_ID;
         key_record_t key = init_key_record(app_id, l);
@@ -301,7 +316,7 @@ TEST(Test_KeyStore, key_slot_is_not_restricted_to_app_id)
 // Expectation: keys added for an app_id have to have unique names.
 TEST(Test_KeyStore, key_cannot_be_added_twice_for_one_app_id)
 {
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
@@ -319,7 +334,7 @@ TEST(Test_KeyStore, key_cannot_be_added_twice_for_one_app_id)
 // Expectation: keys added for different app_ids do not have to have unique names.
 TEST(Test_KeyStore, key_can_be_added_twice_for_different_app_ids)
 {
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
@@ -337,14 +352,15 @@ TEST(Test_KeyStore, key_can_be_added_twice_for_different_app_ids)
 // Expectation: when having a Key Store filled with keys of identical app_ids: find by index succeeds and is correct.
 TEST(Test_KeyStore, find_by_index_works_with_key_store_filled_with_identical_app_ids)
 {
-    unsigned int app_id = 1;
-    unsigned int key_index[NR_ELEMENTS];
+    KeyStore key_store;
 
-    key_store_t key_store;
+    unsigned int app_id = 1;
+    unsigned int key_index[key_store.size()];
+
 
     key_store_init(&key_store);
 
-    for (unsigned int l = 0; l < NR_ELEMENTS; ++l)
+    for (unsigned int l = 0; l < key_store.size(); ++l)
     {
         key_record_t key = init_key_record(app_id, l);
         key_store_result_t result = key_store_add(&key_store, app_id, &key);
@@ -352,7 +368,7 @@ TEST(Test_KeyStore, find_by_index_works_with_key_store_filled_with_identical_app
         key_index[l] = result.index;
     }
 
-    for (unsigned int l = 0; l < NR_ELEMENTS; ++l)
+    for (unsigned int l = 0; l < key_store.size(); ++l)
     {
         int result;
         key_record_t key = init_key_record(app_id, l);
@@ -372,11 +388,11 @@ TEST(Test_KeyStore, find_by_name_works_with_key_store_filled_with_identical_app_
 {
     unsigned int app_id = 1;
 
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
-    for (unsigned int l = 0; l < NR_ELEMENTS; ++l)
+    for (unsigned int l = 0; l < key_store.size(); ++l)
     {
         key_record_t key = init_key_record(app_id, l);
         unsigned int index;
@@ -384,7 +400,7 @@ TEST(Test_KeyStore, find_by_name_works_with_key_store_filled_with_identical_app_
         ASSERT_TRUE(result.error == 0);
     }
 
-    for (unsigned int l = 0; l < NR_ELEMENTS; ++l)
+    for (unsigned int l = 0; l < key_store.size(); ++l)
     {
         key_record_t key = init_key_record(app_id, l);
 
@@ -400,13 +416,13 @@ TEST(Test_KeyStore, find_by_name_works_with_key_store_filled_with_identical_app_
 // Expectation: when having a Key Store filled with keys of different app_ids: find by index succeeds and is correct.
 TEST(Test_KeyStore, find_by_index_works_with_key_store_filled_with_different_app_ids)
 {
-    unsigned int key_index[NR_ELEMENTS];
+    KeyStore key_store;
 
-    key_store_t key_store;
+    unsigned int key_index[key_store.size()];
 
     key_store_init(&key_store);
 
-    for (unsigned int l = 0; l < NR_ELEMENTS; ++l)
+    for (unsigned int l = 0; l < key_store.size(); ++l)
     {
         unsigned int app_id = l % MAX_APP_ID;
         key_record_t key = init_key_record(app_id, l);
@@ -416,7 +432,7 @@ TEST(Test_KeyStore, find_by_index_works_with_key_store_filled_with_different_app
         key_index[l] = result.index;
     }
 
-    for (unsigned int l = 0; l < NR_ELEMENTS; ++l)
+    for (unsigned int l = 0; l < key_store.size(); ++l)
     {
         int result;
         unsigned int app_id = l % MAX_APP_ID;
@@ -435,11 +451,11 @@ TEST(Test_KeyStore, find_by_index_works_with_key_store_filled_with_different_app
 // Expectation: when having a Key Store filled with keys of different app_ids: find by name succeeds and is correct.
 TEST(Test_KeyStore, find_by_name_works_with_key_store_filled_with_different_app_ids)
 {
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
-    for (unsigned int l = 0; l < NR_ELEMENTS; ++l)
+    for (unsigned int l = 0; l < key_store.size(); ++l)
     {
         unsigned int app_id = l % MAX_APP_ID;
         key_record_t key = init_key_record(app_id, l);
@@ -447,7 +463,7 @@ TEST(Test_KeyStore, find_by_name_works_with_key_store_filled_with_different_app_
         ASSERT_TRUE(result.error == 0);
     }
 
-    for (unsigned int l = 0; l < NR_ELEMENTS; ++l)
+    for (unsigned int l = 0; l < key_store.size(); ++l)
     {
         unsigned int app_id = l % MAX_APP_ID;
         key_record_t key = init_key_record(app_id, l);
@@ -467,7 +483,7 @@ TEST(Test_KeyStore, deleted_key_cannot_be_found_any_more)
 {
     unsigned int app_id = 1;
 
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
@@ -500,7 +516,7 @@ TEST(Test_KeyStore, deleted_key_cannot_be_found_any_more)
 // This is independent of the app_id of the deleted and added key.
 TEST(Test_KeyStore, key_deletion_works_independent_of_app_id)
 {
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
@@ -508,10 +524,10 @@ TEST(Test_KeyStore, key_deletion_works_independent_of_app_id)
     {
         key_store_wipe(&key_store);
 
-        unsigned int key_to_be_deleted_index = app_id % NR_ELEMENTS;
+        unsigned int key_to_be_deleted_index = app_id % key_store.size();
         key_record_t key_to_be_deleted;
 
-        for (unsigned int l = 0; l < NR_ELEMENTS; ++l)
+        for (unsigned int l = 0; l < key_store.size(); ++l)
         {
             key_record_t key = init_key_record(app_id, l);
             key_store_result_t result = key_store_add(&key_store, app_id, &key);
@@ -526,7 +542,7 @@ TEST(Test_KeyStore, key_deletion_works_independent_of_app_id)
         int result = key_store_delete(&key_store, app_id, key_to_be_deleted.name);
         ASSERT_TRUE(result == 0);
 
-        key_record_t key = init_key_record(app_id, NR_ELEMENTS + 1);
+        key_record_t key = init_key_record(app_id, key_store.size() + 1);
         key_store_result_t add_result = key_store_add(&key_store, app_id, &key);
         ASSERT_TRUE(add_result.error == 0);
     }
@@ -538,7 +554,7 @@ TEST(Test_KeyStore, deletion_fails_with_wrong_app_id)
 {
     unsigned int app_id = 1;
 
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
@@ -554,7 +570,7 @@ TEST(Test_KeyStore, deletion_fails_with_wrong_app_id)
 // Expectation: after deleting a key from a full Key Store it is possible to add a key successfully independent of its app_id.
 TEST(Test_KeyStore, empty_slot_from_deletion_can_be_filled_with_any_app_id)
 {
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
@@ -562,10 +578,10 @@ TEST(Test_KeyStore, empty_slot_from_deletion_can_be_filled_with_any_app_id)
     {
         key_store_wipe(&key_store);
 
-        unsigned int key_to_be_deleted_index = app_id % NR_ELEMENTS;
+        unsigned int key_to_be_deleted_index = app_id % key_store.size();
         key_record_t key_to_be_deleted;
 
-        for (unsigned int l = 0; l < NR_ELEMENTS; ++l)
+        for (unsigned int l = 0; l < key_store.size(); ++l)
         {
             key_record_t key = init_key_record(app_id, l);
             key_store_result_t result = key_store_add(&key_store, app_id, &key);
@@ -583,7 +599,7 @@ TEST(Test_KeyStore, empty_slot_from_deletion_can_be_filled_with_any_app_id)
             int result = key_store_delete(&key_store, key_to_be_deleted_app_id, key_to_be_deleted.name);
             ASSERT_TRUE(result == 0);
 
-            key_record_t key = init_key_record(k, NR_ELEMENTS + 1 + k);
+            key_record_t key = init_key_record(k, key_store.size() + 1 + k);
             key_store_result_t add_result = key_store_add(&key_store, k, &key);
             ASSERT_TRUE(add_result.error == 0);
 
@@ -597,7 +613,7 @@ TEST(Test_KeyStore, empty_slot_from_deletion_can_be_filled_with_any_app_id)
 // Expectation: if deleting a key from a full Key Store and adding a new one then the (resulting) index of both is identical.
 TEST(Test_KeyStore, delete_add_on_full_key_store_involves_identical_index)
 {
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
@@ -605,10 +621,10 @@ TEST(Test_KeyStore, delete_add_on_full_key_store_involves_identical_index)
     {
         key_store_wipe(&key_store);
 
-        unsigned int key_to_be_deleted_index = app_id % NR_ELEMENTS;
+        unsigned int key_to_be_deleted_index = app_id % key_store.size();
         key_record_t key_to_be_deleted;
 
-        for (unsigned int l = 0; l < NR_ELEMENTS; ++l)
+        for (unsigned int l = 0; l < key_store.size(); ++l)
         {
             key_record_t key = init_key_record(app_id, l);
             key_store_result_t result = key_store_add(&key_store, app_id, &key);
@@ -623,7 +639,7 @@ TEST(Test_KeyStore, delete_add_on_full_key_store_involves_identical_index)
         int result = key_store_delete(&key_store, app_id, key_to_be_deleted.name);
         ASSERT_TRUE(result == 0);
 
-        key_record_t key = init_key_record(app_id, NR_ELEMENTS + 1);
+        key_record_t key = init_key_record(app_id, key_store.size() + 1);
         key_store_result_t add_result = key_store_add(&key_store, app_id, &key);
         ASSERT_TRUE(add_result.error == 0);
 
@@ -635,7 +651,7 @@ TEST(Test_KeyStore, delete_add_on_full_key_store_involves_identical_index)
 // Expectation: key_store_add handles illegal arguments properly.
 TEST(Test_KeyStore, add_catches_illegal_arguments)
 {
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
@@ -657,7 +673,7 @@ TEST(Test_KeyStore, add_catches_illegal_arguments)
 // Expectation: key_store_get handles illegal arguments properly.
 TEST(Test_KeyStore, get_catches_illegal_arguments)
 {
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
@@ -687,7 +703,7 @@ TEST(Test_KeyStore, get_catches_illegal_arguments)
 // Expectation: key_store_get_by_index handles illegal arguments properly.
 TEST(Test_KeyStore, get_by_index_catches_illegal_arguments)
 {
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
@@ -707,7 +723,7 @@ TEST(Test_KeyStore, get_by_index_catches_illegal_arguments)
     result = key_store_get_by_index(&key_store, MAX_APP_ID + 1, add_result.index, &found_key);
     ASSERT_TRUE(result != 0);
 
-    result = key_store_get_by_index(&key_store, app_id, NR_ELEMENTS, &found_key);
+    result = key_store_get_by_index(&key_store, app_id, key_store.size(), &found_key);
     ASSERT_TRUE(result != 0);
 
     result = key_store_get_by_index(&key_store, MAX_APP_ID + 1, add_result.index, NULL);
@@ -718,7 +734,7 @@ TEST(Test_KeyStore, get_by_index_catches_illegal_arguments)
 // Expectation: key_store_delete handles illegal arguments properly.
 TEST(Test_KeyStore, delete_catches_illegal_arguments)
 {
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
@@ -751,7 +767,7 @@ TEST(Test_KeyStore, find_read_only_key_by_name_works)
 {
     unsigned int app_ids[1];
     key_record_t keys[1];
-    key_store_t key_store;
+    KeyStore key_store;
 
     app_ids[0] = 1;
     keys[0] = init_key_record(app_ids[0], 0);
@@ -773,7 +789,7 @@ TEST(Test_KeyStore, delete_read_only_key_does_not_work)
 {
     unsigned int app_ids[1];
     key_record_t keys[1];
-    key_store_t key_store;
+    KeyStore key_store;
 
     app_ids[0] = 1;
     keys[0] = init_key_record(app_ids[0], 0);
@@ -785,12 +801,13 @@ TEST(Test_KeyStore, delete_read_only_key_does_not_work)
     ASSERT_TRUE(result != 0);
 }
 
+
 // Expectation: initializing a Key Store with read only keys of which some are
 // duplicate keys fails but nevertheless initializes the Key Store in a way as
 // an ordinary initialization (= without using read only keys) would have done.
 TEST(Test_KeyStore, initialize_with_duplicate_read_only_keys_fails_properly)
 {
-    key_store_t key_store;
+    KeyStore key_store;
 
     key_store_init(&key_store);
 
@@ -810,7 +827,7 @@ TEST(Test_KeyStore, initialize_with_duplicate_read_only_keys_fails_properly)
     unsigned int result = key_store_init_with_read_only_keys(&key_store, app_ids, keys, 2);
     ASSERT_TRUE(result == -1);
 
-    for (unsigned int l = 0; l < NR_ELEMENTS; ++l)
+    for (unsigned int l = 0; l < key_store.size(); ++l)
     {
         key_record_t key = init_key_record(app_id, l);
         key_store_result_t result = key_store_add(&key_store, app_id, &key);
