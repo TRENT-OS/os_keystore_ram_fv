@@ -74,9 +74,11 @@ unsigned int find_free_element(key_store_t const *key_store)
     return NR_ELEMENTS;
 }
 
-
-void key_store_init(key_store_t *key_store)
+void key_store_init(
+    key_store_t *key_store,
+    element_record_t *element_store)
 {
+    key_store->element_store = element_store;
     key_store->free_slots = NR_ELEMENTS;
     for (unsigned int k = 0; k < NR_ELEMENTS; k++)
     {
@@ -86,10 +88,16 @@ void key_store_init(key_store_t *key_store)
     }
 }
 
-
-unsigned int key_store_init_with_read_only_keys(key_store_t *key_store, unsigned int const *app_ids, key_record_t const *keys, unsigned int nr_keys)
+unsigned int key_store_init_with_read_only_keys(
+    key_store_t *key_store,
+    unsigned int const *app_ids,
+    key_record_t const *keys,
+    unsigned int nr_keys,
+    element_record_t *element_store)
 {
     unsigned int result = 0;
+
+    key_store->element_store = element_store;
 
     if (nr_keys > NR_ELEMENTS)
     {

@@ -90,7 +90,7 @@ TEST(Test_KeyStore, empty_after_init)
 {
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     for (unsigned int k = 0; k <= MAX_APP_ID; ++k)
     {
@@ -109,7 +109,7 @@ TEST(Test_KeyStore, still_empty_after_init_plus_wipe)
 {
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     key_store_wipe(&key_store);
 
@@ -130,7 +130,7 @@ TEST(Test_KeyStore, add_key_to_empty_key_store_succeeds)
 {
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     unsigned int app_id = 0;
 
@@ -145,7 +145,7 @@ TEST(Test_KeyStore, find_key_by_index_works)
 {
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     unsigned int app_id = 1;
     unsigned int some_value = 4711;
@@ -169,7 +169,7 @@ TEST(Test_KeyStore, find_key_by_name_works)
 {
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     unsigned int app_id = 1;
     unsigned int some_value = 4711;
@@ -192,7 +192,7 @@ TEST(Test_KeyStore, find_key_by_index_with_wrong_id_fails)
 {
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     unsigned int app_id = 1;
     unsigned int some_value = 4711;
@@ -212,7 +212,7 @@ TEST(Test_KeyStore, find_key_by_name_with_wrong_id_fails)
 {
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     unsigned int app_id = 1;
     unsigned int some_value = 4711;
@@ -234,7 +234,7 @@ TEST(Test_KeyStore, add_really_creates_only_one_key)
 {
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     for (unsigned int l = 0; l <= MAX_APP_ID; ++l)
     {
@@ -269,7 +269,7 @@ TEST(Test_KeyStore, key_store_can_be_filled)
     unsigned int app_id = 1;
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     for (unsigned int l = 0; l < key_store.size(); ++l)
     {
@@ -293,7 +293,7 @@ TEST(Test_KeyStore, key_slot_is_not_restricted_to_app_id)
 {
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     for (unsigned int l = 0; l < key_store.size(); ++l)
     {
@@ -318,7 +318,7 @@ TEST(Test_KeyStore, key_cannot_be_added_twice_for_one_app_id)
 {
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     key_store_result_t result;
     unsigned int app_id = 0;
@@ -336,7 +336,7 @@ TEST(Test_KeyStore, key_can_be_added_twice_for_different_app_ids)
 {
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     key_store_result_t result;
     unsigned int app_id = 0;
@@ -358,7 +358,7 @@ TEST(Test_KeyStore, find_by_index_works_with_key_store_filled_with_identical_app
     unsigned int key_index[key_store.size()];
 
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     for (unsigned int l = 0; l < key_store.size(); ++l)
     {
@@ -390,7 +390,7 @@ TEST(Test_KeyStore, find_by_name_works_with_key_store_filled_with_identical_app_
 
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     for (unsigned int l = 0; l < key_store.size(); ++l)
     {
@@ -420,7 +420,7 @@ TEST(Test_KeyStore, find_by_index_works_with_key_store_filled_with_different_app
 
     unsigned int key_index[key_store.size()];
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     for (unsigned int l = 0; l < key_store.size(); ++l)
     {
@@ -453,7 +453,7 @@ TEST(Test_KeyStore, find_by_name_works_with_key_store_filled_with_different_app_
 {
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     for (unsigned int l = 0; l < key_store.size(); ++l)
     {
@@ -485,7 +485,7 @@ TEST(Test_KeyStore, deleted_key_cannot_be_found_any_more)
 
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     key_record_t key = init_key_record(app_id, 0);
     key_store_result_t add_result = key_store_add(&key_store, app_id, &key);
@@ -518,7 +518,7 @@ TEST(Test_KeyStore, key_deletion_works_independent_of_app_id)
 {
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     for (unsigned int app_id = 0; app_id <= MAX_APP_ID; ++app_id)
     {
@@ -556,7 +556,7 @@ TEST(Test_KeyStore, deletion_fails_with_wrong_app_id)
 
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     key_record_t key = init_key_record(app_id, 0);
     key_store_result_t add_result = key_store_add(&key_store, app_id, &key);
@@ -572,7 +572,7 @@ TEST(Test_KeyStore, empty_slot_from_deletion_can_be_filled_with_any_app_id)
 {
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     for (unsigned int app_id = 0; app_id <= MAX_APP_ID; ++app_id)
     {
@@ -615,7 +615,7 @@ TEST(Test_KeyStore, delete_add_on_full_key_store_involves_identical_index)
 {
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     for (unsigned int app_id = 0; app_id <= MAX_APP_ID; ++app_id)
     {
@@ -653,7 +653,7 @@ TEST(Test_KeyStore, add_catches_illegal_arguments)
 {
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     key_store_result_t result;
     unsigned int app_id = 0;
@@ -675,7 +675,7 @@ TEST(Test_KeyStore, get_catches_illegal_arguments)
 {
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     unsigned int app_id = 0;
 
@@ -705,7 +705,7 @@ TEST(Test_KeyStore, get_by_index_catches_illegal_arguments)
 {
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     unsigned int app_id = 0;
 
@@ -736,7 +736,7 @@ TEST(Test_KeyStore, delete_catches_illegal_arguments)
 {
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     unsigned int app_id = 0;
 
@@ -772,7 +772,7 @@ TEST(Test_KeyStore, find_read_only_key_by_name_works)
     app_ids[0] = 1;
     keys[0] = init_key_record(app_ids[0], 0);
 
-    unsigned int init_result = key_store_init_with_read_only_keys(&key_store, app_ids, keys, 1);
+    unsigned int init_result = key_store_init_with_read_only_keys(&key_store, app_ids, keys, 1, key_store.get_element_buf());
     ASSERT_TRUE(init_result != -1);
 
     key_record_t found_key;
@@ -794,7 +794,7 @@ TEST(Test_KeyStore, delete_read_only_key_does_not_work)
     app_ids[0] = 1;
     keys[0] = init_key_record(app_ids[0], 0);
 
-    unsigned int init_result = key_store_init_with_read_only_keys(&key_store, app_ids, keys, 1);
+    unsigned int init_result = key_store_init_with_read_only_keys(&key_store, app_ids, keys, 1, key_store.get_element_buf());
     ASSERT_TRUE(init_result != -1);
 
     int result = key_store_delete(&key_store, app_ids[0], keys[0].name);
@@ -809,7 +809,7 @@ TEST(Test_KeyStore, initialize_with_duplicate_read_only_keys_fails_properly)
 {
     KeyStore key_store;
 
-    key_store_init(&key_store);
+    key_store_init(&key_store, key_store.get_element_buf());
 
     unsigned int app_id = 0;
 
@@ -824,7 +824,7 @@ TEST(Test_KeyStore, initialize_with_duplicate_read_only_keys_fails_properly)
     keys[0] = init_key_record(app_ids[0], 0);
     keys[1] = init_key_record(app_ids[1], 0);
 
-    unsigned int result = key_store_init_with_read_only_keys(&key_store, app_ids, keys, 2);
+    unsigned int result = key_store_init_with_read_only_keys(&key_store, app_ids, keys, 2, key_store.get_element_buf());
     ASSERT_TRUE(result == -1);
 
     for (unsigned int l = 0; l < key_store.size(); ++l)
