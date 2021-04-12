@@ -3,7 +3,6 @@
 #define KEY_NAME_SIZE 32
 #define KEY_DATA_SIZE 1024
 
-#define NR_ELEMENTS 16
 #define MAX_APP_ID 255
 
 
@@ -28,6 +27,7 @@ typedef struct int_element_record {
 
 typedef struct int_key_store {
     unsigned free_slots;
+    unsigned number_elements;
     element_record_t *element_store;
 } key_store_t;
 
@@ -38,12 +38,14 @@ typedef struct int_key_store_result {
 
 void key_store_init(
     key_store_t *key_store,
+    unsigned number_elements,
     element_record_t *element_store);
 unsigned int key_store_init_with_read_only_keys(
     key_store_t *key_store,
     unsigned int const *app_ids,
     key_record_t const *keys,
     unsigned int nr_keys,
+    unsigned number_elements,
     element_record_t *element_store);
 void key_store_wipe(key_store_t *key_store);
 key_store_result_t key_store_add(key_store_t *key_store, unsigned int app_id, key_record_t const *key);

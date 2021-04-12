@@ -40,9 +40,9 @@ unsigned int find_element(key_store_t const *key_store, unsigned int max, const 
         return max;
     }
 
-    if (max > NR_ELEMENTS)
+    if (max > key_store->number_elements)
     {
-        max = NR_ELEMENTS;
+        max = key_store->number_elements;
     }
 
     for (unsigned int k = 0; k < max; k++)
@@ -63,7 +63,7 @@ unsigned int find_element(key_store_t const *key_store, unsigned int max, const 
 static
 unsigned int find_free_element(key_store_t const *key_store)
 {
-    for (unsigned int k = 0; k < NR_ELEMENTS; k++)
+    for (unsigned int k = 0; k < key_store->number_elements; k++)
     {
         if (key_store->element_store[k].admin.is_free)
         {
@@ -71,16 +71,18 @@ unsigned int find_free_element(key_store_t const *key_store)
         }
     }
 
-    return NR_ELEMENTS;
+    return key_store->number_elements;
 }
 
 void key_store_init(
     key_store_t *key_store,
+    unsigned number_elements,
     element_record_t *element_store)
 {
+    key_store->number_elements = number_elements;
     key_store->element_store = element_store;
-    key_store->free_slots = NR_ELEMENTS;
-    for (unsigned int k = 0; k < NR_ELEMENTS; k++)
+    key_store->free_slots = key_store->number_elements;
+    for (unsigned int k = 0; k < key_store->number_elements; k++)
     {
         key_store->element_store[k].admin.is_free = 1;
         key_store->element_store[k].admin.app_id = 0;
@@ -93,13 +95,15 @@ unsigned int key_store_init_with_read_only_keys(
     unsigned int const *app_ids,
     key_record_t const *keys,
     unsigned int nr_keys,
+    unsigned number_elements,
     element_record_t *element_store)
 {
     unsigned int result = 0;
 
+    key_store->number_elements = number_elements;
     key_store->element_store = element_store;
 
-    if (nr_keys > NR_ELEMENTS)
+    if (nr_keys > key_store->number_elements)
     {
         nr_keys = 0;
         result = -1;
@@ -122,7 +126,7 @@ unsigned int key_store_init_with_read_only_keys(
         memcpy(key_store->element_store[k].key.data, keys[k].data, KEY_DATA_SIZE);
     }
 
-    for (unsigned int k = nr_keys; k < NR_ELEMENTS; k++)
+    for (unsigned int k = nr_keys; k < key_store->number_elements; k++)
     {
         key_store->element_store[k].admin.is_free = 1;
         key_store->element_store[k].admin.app_id = 0;
@@ -130,14 +134,14 @@ unsigned int key_store_init_with_read_only_keys(
         reset_element_key(key_store, k);
     }
 
-    key_store->free_slots = NR_ELEMENTS - nr_keys;
+    key_store->free_slots = key_store->number_elements - nr_keys;
     return result;
 }
 
 
 void key_store_wipe(key_store_t *key_store)
 {
-    for (unsigned int k = 0; k < NR_ELEMENTS; k++)
+    for (unsigned int k = 0; k < key_store->number_elements; k++)
     {
         if (!key_store->element_store[k].admin.is_free &&
             !key_store->element_store[k].key.read_only)
@@ -150,7 +154,7 @@ void key_store_wipe(key_store_t *key_store)
 
 key_store_result_t key_store_add(key_store_t *key_store, unsigned int app_id, key_record_t const *key)
 {
-    key_store_result_t result = {-1, NR_ELEMENTS};
+    key_store_result_t result = {-1, key_store->number_elements};
 
     if (key == NULL)
     {
@@ -167,14 +171,14 @@ key_store_result_t key_store_add(key_store_t *key_store, unsigned int app_id, ke
         return result;
     }
 
-    if (NR_ELEMENTS > find_element(key_store, NR_ELEMENTS, app_id, key->name))
+    if (key_store->number_elements > find_element(key_store, key_store->number_elements, app_id, key->name))
     {
         return result;
     }
 
     result.index = find_free_element(key_store);
 
-    if (NR_ELEMENTS == result.index)
+    if (key_store->number_elements == result.index)
     {
         return result;
     }
@@ -195,7 +199,7 @@ key_store_result_t key_store_add(key_store_t *key_store, unsigned int app_id, ke
 
 key_store_result_t key_store_get(key_store_t const *key_store, unsigned int app_id, const char name [KEY_NAME_SIZE], key_record_t *key)
 {
-    key_store_result_t result = {-1, NR_ELEMENTS};
+    key_store_result_t result = {-1, key_store->number_elements};
 
     if (name == NULL)
     {
@@ -212,9 +216,9 @@ key_store_result_t key_store_get(key_store_t const *key_store, unsigned int app_
         return result;
     }
 
-    result.index = find_element(key_store, NR_ELEMENTS, app_id, name);
+    result.index = find_element(key_store, key_store->number_elements, app_id, name);
 
-    if (NR_ELEMENTS == result.index)
+    if (key_store->number_elements == result.index)
     {
         return result;
     }
@@ -234,7 +238,7 @@ unsigned int key_store_get_by_index(key_store_t const *key_store, unsigned int a
         return -1;
     }
 
-    if (index >= NR_ELEMENTS)
+    if (index >= key_store->number_elements)
     {
         return -1;
     }
@@ -273,9 +277,9 @@ unsigned int key_store_delete(key_store_t *key_store, unsigned int app_id, const
         return -1;
     }
 
-    unsigned int element_index = find_element(key_store, NR_ELEMENTS, app_id, name);
+    unsigned int element_index = find_element(key_store, key_store->number_elements, app_id, name);
 
-    if (NR_ELEMENTS == element_index)
+    if (key_store->number_elements == element_index)
     {
         return -1;
     }
