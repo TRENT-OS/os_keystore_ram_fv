@@ -98,7 +98,7 @@ unsigned int key_store_init_with_read_only_keys(
     unsigned long max_elements,
     element_record_t *element_store)
 {
-    unsigned int result = 0;
+    unsigned int result = ERR_NONE;
 
     key_store->max_elements = max_elements;
     key_store->element_store = element_store;
@@ -115,7 +115,7 @@ unsigned int key_store_init_with_read_only_keys(
         if (find_element(key_store, k, app_ids[k], keys[k].name) < k)
         {
             nr_keys = 0;
-            result = -1;
+            result = ERR_DUPLICATED;
             break;
         }
 
@@ -154,7 +154,7 @@ void key_store_wipe(key_store_t *key_store)
 
 key_store_result_t key_store_add(key_store_t *key_store, unsigned int app_id, key_record_t const *key)
 {
-    key_store_result_t result = {-1, key_store->max_elements};
+    key_store_result_t result = {ERR_INVALID_PARAMETER, key_store->max_elements};
 
     if (key == NULL)
     {
@@ -173,6 +173,7 @@ key_store_result_t key_store_add(key_store_t *key_store, unsigned int app_id, ke
 
     if (key_store->max_elements > find_element(key_store, key_store->max_elements, app_id, key->name))
     {
+        result.error = ERR_DUPLICATED;
         return result;
     }
 
@@ -180,6 +181,7 @@ key_store_result_t key_store_add(key_store_t *key_store, unsigned int app_id, ke
 
     if (key_store->max_elements == result.index)
     {
+        result.error = ERR_OUT_OF_SPACE;
         return result;
     }
 
@@ -192,14 +194,14 @@ key_store_result_t key_store_add(key_store_t *key_store, unsigned int app_id, ke
     memcpy(key_store->element_store[result.index].key.name, key->name, KEY_NAME_SIZE);
     memcpy(key_store->element_store[result.index].key.data, key->data, KEY_DATA_SIZE);
 
-    result.error = 0;
+    result.error = ERR_NONE;
     return result;
 }
 
 
 key_store_result_t key_store_get(key_store_t const *key_store, unsigned int app_id, const char name [KEY_NAME_SIZE], key_record_t *key)
 {
-    key_store_result_t result = {-1, key_store->max_elements};
+    key_store_result_t result = {ERR_INVALID_PARAMETER, key_store->max_elements};
 
     if (name == NULL)
     {
@@ -220,6 +222,7 @@ key_store_result_t key_store_get(key_store_t const *key_store, unsigned int app_
 
     if (key_store->max_elements == result.index)
     {
+        result.error = ERR_NOT_FOUND;
         return result;
     }
 
@@ -227,7 +230,7 @@ key_store_result_t key_store_get(key_store_t const *key_store, unsigned int app_
     memcpy(key->data, key_store->element_store[result.index].key.data, KEY_DATA_SIZE);
     key->read_only = key_store->element_store[result.index].key.read_only;
 
-    result.error = 0;
+    result.error = ERR_NONE;
     return result;
 }
 
@@ -235,63 +238,63 @@ unsigned int key_store_get_by_index(key_store_t const *key_store, unsigned int a
 {
     if (key == NULL)
     {
-        return -1;
+        return ERR_INVALID_PARAMETER;
     }
 
     if (index >= key_store->max_elements)
     {
-        return -1;
+        return ERR_INVALID_PARAMETER;
     }
 
     if (app_id > MAX_APP_ID)
     {
-        return -1;
+        return ERR_INVALID_PARAMETER;
     }
 
     if (key_store->element_store[index].admin.is_free)
     {
-        return -1;
+        return ERR_NOT_FOUND;
     }
 
     if (app_id != key_store->element_store[index].admin.app_id)
     {
-        return -1;
+        return ERR_INVALID_PARAMETER;
     }
 
     memcpy(key->name, key_store->element_store[index].key.name, KEY_NAME_SIZE);
     memcpy(key->data, key_store->element_store[index].key.data, KEY_DATA_SIZE);
     key->read_only = key_store->element_store[index].key.read_only;
 
-    return 0;
+    return ERR_NONE;
 }
 
 unsigned int key_store_delete(key_store_t *key_store, unsigned int app_id, const char name [KEY_NAME_SIZE])
 {
     if (name == NULL)
     {
-        return -1;
+        return ERR_INVALID_PARAMETER;
     }
 
     if (app_id > MAX_APP_ID)
     {
-        return -1;
+        return ERR_INVALID_PARAMETER;
     }
 
     unsigned long element_index = find_element(key_store, key_store->max_elements, app_id, name);
 
     if (key_store->max_elements == element_index)
     {
-        return -1;
+        return ERR_NOT_FOUND;
     }
 
     if (key_store->element_store[element_index].key.read_only)
     {
-        return -1;
+        return ERR_READ_ONLY;
     }
 
     delete_element(key_store, element_index);
 
-    return 0;
+    return ERR_NONE;
 }
 
 #ifdef __cplusplus

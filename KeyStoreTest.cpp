@@ -100,7 +100,7 @@ TEST(Test_KeyStore, empty_after_init)
         {
             key_record_t key;
             int result = key_store_get_by_index(&key_store, k, j, &key);
-            ASSERT_TRUE(result != 0);
+            ASSERT_EQ(ERR_NOT_FOUND, result);
         }
     }
 }
@@ -121,7 +121,7 @@ TEST(Test_KeyStore, still_empty_after_init_plus_wipe)
         {
             key_record_t key;
             int result = key_store_get_by_index(&key_store, k, j, &key);
-            ASSERT_TRUE(result != 0);
+            ASSERT_EQ(ERR_NOT_FOUND, result);
         }
     }
 }
@@ -138,7 +138,7 @@ TEST(Test_KeyStore, add_key_to_empty_key_store_succeeds)
 
     key_record_t key = init_key_record(app_id, 0);
     key_store_result_t result = key_store_add(&key_store, app_id, &key);
-    ASSERT_TRUE(result.error == 0);
+    ASSERT_EQ(ERR_NONE, result.error);
 }
 
 
@@ -154,15 +154,15 @@ TEST(Test_KeyStore, find_key_by_index_works)
 
     key_record_t key = init_key_record(app_id, 0);
     key_store_result_t add_result = key_store_add(&key_store, app_id, &key);
-    ASSERT_TRUE(add_result.error == 0);
+    ASSERT_EQ(ERR_NONE, add_result.error);
 
     int result;
     key_record_t found_key;
     result = key_store_get_by_index(&key_store, app_id, add_result.index, &found_key);
-    ASSERT_TRUE(result == 0);
+    ASSERT_EQ(ERR_NONE, result);
 
     result = compare_key_records(key, found_key);
-    ASSERT_TRUE(result == 0);
+    ASSERT_EQ(ERR_NONE, result);
 }
 
 
@@ -178,14 +178,14 @@ TEST(Test_KeyStore, find_key_by_name_works)
 
     key_record_t key = init_key_record(app_id, 0);
     key_store_result_t add_result = key_store_add(&key_store, app_id, &key);
-    ASSERT_TRUE(add_result.error == 0);
+    ASSERT_EQ(ERR_NONE, add_result.error);
 
     key_record_t found_key;
     key_store_result_t get_result = key_store_get(&key_store, app_id, key.name, &found_key);
-    ASSERT_TRUE(get_result.error == 0);
+    ASSERT_EQ(ERR_NONE, get_result.error);
 
     int result = compare_key_records(key, found_key);
-    ASSERT_TRUE(result == 0);
+    ASSERT_EQ(ERR_NONE, result);
 }
 
 
@@ -201,11 +201,11 @@ TEST(Test_KeyStore, find_key_by_index_with_wrong_id_fails)
 
     key_record_t key = init_key_record(app_id, 0);
     key_store_result_t add_result = key_store_add(&key_store, app_id, &key);
-    ASSERT_TRUE(add_result.error == 0);
+    ASSERT_EQ(ERR_NONE, add_result.error);
 
     key_record_t found_key;
     int result = key_store_get_by_index(&key_store, app_id + 1, add_result.index, &found_key);
-    ASSERT_TRUE(result != 0);
+    ASSERT_EQ(ERR_INVALID_PARAMETER, result);
 }
 
 
@@ -221,11 +221,11 @@ TEST(Test_KeyStore, find_key_by_name_with_wrong_id_fails)
 
     key_record_t key = init_key_record(app_id, 0);
     key_store_result_t add_result = key_store_add(&key_store, app_id, &key);
-    ASSERT_TRUE(add_result.error == 0);
+    ASSERT_EQ(ERR_NONE, add_result.error);
 
     key_record_t found_key;
     key_store_result_t get_result = key_store_get(&key_store, app_id + 1, key.name, &found_key);
-    ASSERT_TRUE(get_result.error != 0);
+    ASSERT_EQ(ERR_NOT_FOUND, get_result.error);
 }
 
 
@@ -244,7 +244,7 @@ TEST(Test_KeyStore, add_really_creates_only_one_key)
 
         key_record_t key = init_key_record(l, 0);
         key_store_result_t result = key_store_add(&key_store, l, &key);
-        ASSERT_TRUE(result.error == 0);
+        ASSERT_EQ(ERR_NONE, result.error);
 
         unsigned int found = 0;
         for (unsigned int k = 0; k <= MAX_APP_ID; ++k)
@@ -277,14 +277,14 @@ TEST(Test_KeyStore, key_store_can_be_filled)
     {
         key_record_t key = init_key_record(app_id, l);
         key_store_result_t result = key_store_add(&key_store, app_id, &key);
-        ASSERT_TRUE(result.error == 0);
+        ASSERT_EQ(ERR_NONE, result.error);
     }
 
     for (unsigned int k = 0; k <= MAX_APP_ID; ++k)
     {
         key_record_t key = init_key_record(k, 0);
         key_store_result_t result = key_store_add(&key_store, k, &key);
-        ASSERT_TRUE(result.error != 0);
+        ASSERT_EQ(ERR_INVALID_PARAMETER, result.error);
     }
 }
 
@@ -302,7 +302,7 @@ TEST(Test_KeyStore, key_slot_is_not_restricted_to_app_id)
         unsigned int app_id = l % MAX_APP_ID;
         key_record_t key = init_key_record(app_id, l);
         key_store_result_t result = key_store_add(&key_store, app_id, &key);
-        ASSERT_TRUE(result.error == 0);
+        ASSERT_EQ(ERR_NONE, result.error);
     }
 
     for (unsigned int k = 0; k <= MAX_APP_ID; ++k)
@@ -310,7 +310,7 @@ TEST(Test_KeyStore, key_slot_is_not_restricted_to_app_id)
         key_record_t key = init_key_record(k, 0);
         unsigned int index;
         key_store_result_t result = key_store_add(&key_store, k, &key);
-        ASSERT_TRUE(result.error != 0);
+        ASSERT_EQ(ERR_INVALID_PARAMETER, result.error);
     }
 }
 
@@ -327,10 +327,10 @@ TEST(Test_KeyStore, key_cannot_be_added_twice_for_one_app_id)
 
     key_record_t key = init_key_record(app_id, 0);
     result = key_store_add(&key_store, app_id, &key);
-    ASSERT_TRUE(result.error == 0);
+    ASSERT_EQ(ERR_NONE, result.error);
 
     result = key_store_add(&key_store, app_id, &key);
-    ASSERT_TRUE(result.error != 0);
+    ASSERT_EQ(ERR_DUPLICATED, result.error);
 }
 
 // Expectation: keys added for different app_ids do not have to have unique names.
@@ -345,10 +345,10 @@ TEST(Test_KeyStore, key_can_be_added_twice_for_different_app_ids)
 
     key_record_t key = init_key_record(app_id, 0);
     result = key_store_add(&key_store, app_id, &key);
-    ASSERT_TRUE(result.error == 0);
+    ASSERT_EQ(ERR_NONE, result.error);
 
     result = key_store_add(&key_store, app_id + 1, &key);
-    ASSERT_TRUE(result.error == 0);
+    ASSERT_EQ(ERR_NONE, result.error);
 }
 
 // Expectation: when having a Key Store filled with keys of identical app_ids: find by index succeeds and is correct.
@@ -366,7 +366,7 @@ TEST(Test_KeyStore, find_by_index_works_with_key_store_filled_with_identical_app
     {
         key_record_t key = init_key_record(app_id, l);
         key_store_result_t result = key_store_add(&key_store, app_id, &key);
-        ASSERT_TRUE(result.error == 0);
+        ASSERT_EQ(ERR_NONE, result.error);
         key_index[l] = result.index;
     }
 
@@ -377,10 +377,10 @@ TEST(Test_KeyStore, find_by_index_works_with_key_store_filled_with_identical_app
 
         key_record_t found_key;
         result = key_store_get_by_index(&key_store, app_id, key_index[l], &found_key);
-        ASSERT_TRUE(result == 0);
+        ASSERT_EQ(ERR_NONE, result);
 
         result = compare_key_records(key, found_key);
-        ASSERT_TRUE(result == 0);
+        ASSERT_EQ(ERR_NONE, result);
     }
 }
 
@@ -399,7 +399,7 @@ TEST(Test_KeyStore, find_by_name_works_with_key_store_filled_with_identical_app_
         key_record_t key = init_key_record(app_id, l);
         unsigned int index;
         key_store_result_t result = key_store_add(&key_store, app_id, &key);
-        ASSERT_TRUE(result.error == 0);
+        ASSERT_EQ(ERR_NONE, result.error);
     }
 
     for (unsigned int l = 0; l < key_store.size(); ++l)
@@ -408,10 +408,10 @@ TEST(Test_KeyStore, find_by_name_works_with_key_store_filled_with_identical_app_
 
         key_record_t found_key;
         key_store_result_t add_result = key_store_get(&key_store, app_id, key.name, &found_key);
-        ASSERT_TRUE(add_result.error == 0);
+        ASSERT_EQ(ERR_NONE, add_result.error);
 
         int result = compare_key_records(key, found_key);
-        ASSERT_TRUE(result == 0);
+        ASSERT_EQ(ERR_NONE, result);
     }
 }
 
@@ -430,7 +430,7 @@ TEST(Test_KeyStore, find_by_index_works_with_key_store_filled_with_different_app
         key_record_t key = init_key_record(app_id, l);
         unsigned int index;
         key_store_result_t result = key_store_add(&key_store, app_id, &key);
-        ASSERT_TRUE(result.error == 0);
+        ASSERT_EQ(ERR_NONE, result.error);
         key_index[l] = result.index;
     }
 
@@ -442,10 +442,10 @@ TEST(Test_KeyStore, find_by_index_works_with_key_store_filled_with_different_app
 
         key_record_t found_key;
         result = key_store_get_by_index(&key_store, app_id, key_index[l], &found_key);
-        ASSERT_TRUE(result == 0);
+        ASSERT_EQ(ERR_NONE, result);
 
         result = compare_key_records(key, found_key);
-        ASSERT_TRUE(result == 0);
+        ASSERT_EQ(ERR_NONE, result);
     }
 }
 
@@ -462,7 +462,7 @@ TEST(Test_KeyStore, find_by_name_works_with_key_store_filled_with_different_app_
         unsigned int app_id = l % MAX_APP_ID;
         key_record_t key = init_key_record(app_id, l);
         key_store_result_t result = key_store_add(&key_store, app_id, &key);
-        ASSERT_TRUE(result.error == 0);
+        ASSERT_EQ(ERR_NONE, result.error);
     }
 
     for (unsigned int l = 0; l < key_store.size(); ++l)
@@ -472,10 +472,10 @@ TEST(Test_KeyStore, find_by_name_works_with_key_store_filled_with_different_app_
 
         key_record_t found_key;
         key_store_result_t add_result = key_store_get(&key_store, app_id, key.name, &found_key);
-        ASSERT_TRUE(add_result.error == 0);
+        ASSERT_EQ(ERR_NONE, add_result.error);
 
         int result = compare_key_records(key, found_key);
-        ASSERT_TRUE(result == 0);
+        ASSERT_EQ(ERR_NONE, result);
     }
 }
 
@@ -491,26 +491,26 @@ TEST(Test_KeyStore, deleted_key_cannot_be_found_any_more)
 
     key_record_t key = init_key_record(app_id, 0);
     key_store_result_t add_result = key_store_add(&key_store, app_id, &key);
-    ASSERT_TRUE(add_result.error == 0);
+    ASSERT_EQ(ERR_NONE, add_result.error);
 
     key_record_t found_key;
 
     int result;
     result = key_store_get_by_index(&key_store, app_id, add_result.index, &found_key);
-    ASSERT_TRUE(result == 0);
+    ASSERT_EQ(ERR_NONE, result);
 
     key_store_result_t get_result;
     get_result = key_store_get(&key_store, app_id, key.name, &found_key);
-    ASSERT_TRUE(get_result.error == 0);
+    ASSERT_EQ(ERR_NONE, get_result.error);
 
     result = key_store_delete(&key_store, app_id, key.name);
-    ASSERT_TRUE(result == 0);
+    ASSERT_EQ(ERR_NONE, result);
 
     result = key_store_get_by_index(&key_store, app_id, add_result.index, &found_key);
-    ASSERT_TRUE(result != 0);
+    ASSERT_EQ(ERR_NOT_FOUND, result);
 
     get_result = key_store_get(&key_store, app_id, key.name, &found_key);
-    ASSERT_TRUE(get_result.error != 0);
+    ASSERT_EQ(ERR_NOT_FOUND, result);
 }
 
 // Expectation: an existing key can be deleted successfully independent of its app_id.
@@ -533,7 +533,7 @@ TEST(Test_KeyStore, key_deletion_works_independent_of_app_id)
         {
             key_record_t key = init_key_record(app_id, l);
             key_store_result_t result = key_store_add(&key_store, app_id, &key);
-            ASSERT_TRUE(result.error == 0);
+            ASSERT_EQ(ERR_NONE, result.error);
 
             if (l == key_to_be_deleted_index)
             {
@@ -542,11 +542,11 @@ TEST(Test_KeyStore, key_deletion_works_independent_of_app_id)
         }
 
         int result = key_store_delete(&key_store, app_id, key_to_be_deleted.name);
-        ASSERT_TRUE(result == 0);
+        ASSERT_EQ(ERR_NONE, result);
 
         key_record_t key = init_key_record(app_id, key_store.size() + 1);
         key_store_result_t add_result = key_store_add(&key_store, app_id, &key);
-        ASSERT_TRUE(add_result.error == 0);
+        ASSERT_EQ(ERR_NONE, add_result.error);
     }
 }
 
@@ -562,10 +562,10 @@ TEST(Test_KeyStore, deletion_fails_with_wrong_app_id)
 
     key_record_t key = init_key_record(app_id, 0);
     key_store_result_t add_result = key_store_add(&key_store, app_id, &key);
-    ASSERT_TRUE(add_result.error == 0);
+    ASSERT_EQ(ERR_NONE, add_result.error);
 
     int result = key_store_delete(&key_store, app_id + 1, key.name);
-    ASSERT_TRUE(result != 0);
+    ASSERT_EQ(ERR_NOT_FOUND, result);
 }
 
 
@@ -587,7 +587,7 @@ TEST(Test_KeyStore, empty_slot_from_deletion_can_be_filled_with_any_app_id)
         {
             key_record_t key = init_key_record(app_id, l);
             key_store_result_t result = key_store_add(&key_store, app_id, &key);
-            ASSERT_TRUE(result.error == 0);
+            ASSERT_EQ(ERR_NONE, result.error);
 
             if (l == key_to_be_deleted_index)
             {
@@ -599,11 +599,11 @@ TEST(Test_KeyStore, empty_slot_from_deletion_can_be_filled_with_any_app_id)
         for (unsigned int k = 0; k <= MAX_APP_ID; ++k)
         {
             int result = key_store_delete(&key_store, key_to_be_deleted_app_id, key_to_be_deleted.name);
-            ASSERT_TRUE(result == 0);
+            ASSERT_EQ(ERR_NONE, result);
 
             key_record_t key = init_key_record(k, key_store.size() + 1 + k);
             key_store_result_t add_result = key_store_add(&key_store, k, &key);
-            ASSERT_TRUE(add_result.error == 0);
+            ASSERT_EQ(ERR_NONE, add_result.error);
 
             key_to_be_deleted_app_id = k;
             key_to_be_deleted = key;
@@ -630,7 +630,7 @@ TEST(Test_KeyStore, delete_add_on_full_key_store_involves_identical_index)
         {
             key_record_t key = init_key_record(app_id, l);
             key_store_result_t result = key_store_add(&key_store, app_id, &key);
-            ASSERT_TRUE(result.error == 0);
+            ASSERT_EQ(ERR_NONE, result.error);
 
             if (l == key_to_be_deleted_index)
             {
@@ -639,11 +639,11 @@ TEST(Test_KeyStore, delete_add_on_full_key_store_involves_identical_index)
         }
 
         int result = key_store_delete(&key_store, app_id, key_to_be_deleted.name);
-        ASSERT_TRUE(result == 0);
+        ASSERT_EQ(ERR_NONE, result);
 
         key_record_t key = init_key_record(app_id, key_store.size() + 1);
         key_store_result_t add_result = key_store_add(&key_store, app_id, &key);
-        ASSERT_TRUE(add_result.error == 0);
+        ASSERT_EQ(ERR_NONE, add_result.error);
 
         ASSERT_TRUE(add_result.index == key_to_be_deleted_index);
     }
@@ -662,13 +662,13 @@ TEST(Test_KeyStore, add_catches_illegal_arguments)
 
     key_record_t key = init_key_record(app_id, 0);
     result = key_store_add(&key_store, app_id, &key);
-    ASSERT_TRUE(result.error == 0);
+    ASSERT_EQ(ERR_NONE, result.error);
 
     result = key_store_add(&key_store, app_id + 1, NULL);
-    ASSERT_TRUE(result.error != 0);
+    ASSERT_EQ(ERR_INVALID_PARAMETER, result.error);
 
     result = key_store_add(&key_store, MAX_APP_ID + 1, &key);
-    ASSERT_TRUE(result.error != 0);
+    ASSERT_EQ(ERR_INVALID_PARAMETER, result.error);
 }
 
 
@@ -683,22 +683,22 @@ TEST(Test_KeyStore, get_catches_illegal_arguments)
 
     key_record_t key = init_key_record(app_id, 0);
     key_store_result_t add_result = key_store_add(&key_store, app_id, &key);
-    ASSERT_TRUE(add_result.error == 0);
+    ASSERT_EQ(ERR_NONE, add_result.error);
 
     key_record_t found_key;
     key_store_result_t get_result;
 
     get_result = key_store_get(&key_store, app_id, key.name, &found_key);
-    ASSERT_TRUE(get_result.error == 0);
+    ASSERT_EQ(ERR_NONE, get_result.error);
 
     get_result = key_store_get(&key_store, MAX_APP_ID + 1, key.name, &found_key);
-    ASSERT_TRUE(get_result.error != 0);
+    ASSERT_EQ(ERR_INVALID_PARAMETER, get_result.error);
 
     get_result = key_store_get(&key_store, app_id, NULL, &found_key);
-    ASSERT_TRUE(get_result.error != 0);
+    ASSERT_EQ(ERR_INVALID_PARAMETER, get_result.error);
 
     get_result = key_store_get(&key_store, app_id, key.name, NULL);
-    ASSERT_TRUE(get_result.error != 0);
+    ASSERT_EQ(ERR_INVALID_PARAMETER, get_result.error);
 }
 
 
@@ -713,23 +713,23 @@ TEST(Test_KeyStore, get_by_index_catches_illegal_arguments)
 
     key_record_t key = init_key_record(app_id, 0);
     key_store_result_t add_result = key_store_add(&key_store, app_id, &key);
-    ASSERT_TRUE(add_result.error == 0);
+    ASSERT_EQ(ERR_NONE, add_result.error);
 
     key_store_result_t get_result;
     key_record_t found_key;
     int result;
 
     result = key_store_get_by_index(&key_store, app_id, add_result.index, &found_key);
-    ASSERT_TRUE(result == 0);
+    ASSERT_EQ(ERR_NONE, result);
 
     result = key_store_get_by_index(&key_store, MAX_APP_ID + 1, add_result.index, &found_key);
-    ASSERT_TRUE(result != 0);
+    ASSERT_EQ(ERR_INVALID_PARAMETER, result);
 
     result = key_store_get_by_index(&key_store, app_id, key_store.size(), &found_key);
-    ASSERT_TRUE(result != 0);
+    ASSERT_EQ(ERR_INVALID_PARAMETER, result);
 
     result = key_store_get_by_index(&key_store, MAX_APP_ID + 1, add_result.index, NULL);
-    ASSERT_TRUE(result != 0);
+    ASSERT_EQ(ERR_INVALID_PARAMETER, result);
 }
 
 
@@ -744,23 +744,23 @@ TEST(Test_KeyStore, delete_catches_illegal_arguments)
 
     key_record_t key = init_key_record(app_id, 0);
     key_store_result_t add_result = key_store_add(&key_store, app_id, &key);
-    ASSERT_TRUE(add_result.error == 0);
+    ASSERT_EQ(ERR_NONE, add_result.error);
 
     key_record_t found_key;
 
     key_store_result_t get_result = key_store_get(&key_store, app_id, key.name, &found_key);
-    ASSERT_TRUE(get_result.error == 0);
+    ASSERT_EQ(ERR_NONE, get_result.error);
 
     int result;
 
     result = key_store_delete(&key_store, MAX_APP_ID + 1, key.name);
-    ASSERT_TRUE(result != 0);
+    ASSERT_EQ(ERR_INVALID_PARAMETER, result);
 
     result = key_store_delete(&key_store, app_id, NULL);
-    ASSERT_TRUE(result != 0);
+    ASSERT_EQ(ERR_INVALID_PARAMETER, result);
 
     result = key_store_delete(&key_store, app_id, key.name);
-    ASSERT_TRUE(result == 0);
+    ASSERT_EQ(ERR_NONE, result);
 }
 
 
@@ -775,14 +775,14 @@ TEST(Test_KeyStore, find_read_only_key_by_name_works)
     keys[0] = init_key_record(app_ids[0], 0);
 
     unsigned int init_result = key_store_init_with_read_only_keys(&key_store, app_ids, keys, 1, key_store.size(), key_store.get_element_buf());
-    ASSERT_TRUE(init_result != -1);
+    ASSERT_EQ(ERR_NONE, init_result);
 
     key_record_t found_key;
     key_store_result_t get_result = key_store_get(&key_store, app_ids[0], keys[0].name, &found_key);
-    ASSERT_TRUE(get_result.error == 0);
+    ASSERT_EQ(ERR_NONE, get_result.error);
 
     int result = compare_key_records(keys[0], found_key);
-    ASSERT_TRUE(result == 0);
+    ASSERT_EQ(ERR_NONE, result);
 }
 
 
@@ -797,10 +797,10 @@ TEST(Test_KeyStore, delete_read_only_key_does_not_work)
     keys[0] = init_key_record(app_ids[0], 0);
 
     unsigned int init_result = key_store_init_with_read_only_keys(&key_store, app_ids, keys, 1, key_store.size(), key_store.get_element_buf());
-    ASSERT_TRUE(init_result != -1);
+    ASSERT_EQ(ERR_NONE, init_result);
 
     int result = key_store_delete(&key_store, app_ids[0], keys[0].name);
-    ASSERT_TRUE(result != 0);
+    ASSERT_EQ(ERR_READ_ONLY, result);
 }
 
 
@@ -817,7 +817,7 @@ TEST(Test_KeyStore, initialize_with_duplicate_read_only_keys_fails_properly)
 
     key_record_t key = init_key_record(app_id, 0);
     key_store_result_t add_result = key_store_add(&key_store, app_id, &key);
-    ASSERT_TRUE(add_result.error == 0);
+    ASSERT_EQ(ERR_NONE, add_result.error);
 
     unsigned int app_ids[2];
     key_record_t keys[2];
@@ -827,13 +827,13 @@ TEST(Test_KeyStore, initialize_with_duplicate_read_only_keys_fails_properly)
     keys[1] = init_key_record(app_ids[1], 0);
 
     unsigned int result = key_store_init_with_read_only_keys(&key_store, app_ids, keys, 2, key_store.size(), key_store.get_element_buf());
-    ASSERT_TRUE(result == -1);
+    ASSERT_EQ(ERR_DUPLICATED, result);
 
     for (unsigned int l = 0; l < key_store.size(); ++l)
     {
         key_record_t key = init_key_record(app_id, l);
         key_store_result_t result = key_store_add(&key_store, app_id, &key);
-        ASSERT_TRUE(result.error == 0);
+        ASSERT_EQ(ERR_NONE, result.error);
     }
 }
 

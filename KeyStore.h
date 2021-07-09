@@ -5,6 +5,14 @@
 
 #define MAX_APP_ID 255
 
+#define ERR_NONE                 0
+#define ERR_GENERIC             -1
+#define ERR_INVALID_PARAMETER   -2
+#define ERR_OUT_OF_SPACE        -3
+#define ERR_DUPLICATED          -4
+#define ERR_NOT_FOUND           -5
+#define ERR_READ_ONLY           -6
+
 
 typedef struct int_key_record {
     unsigned int read_only;
