@@ -1,7 +1,7 @@
 
 
-#define KEY_NAME_SIZE 32
-#define KEY_DATA_SIZE 1024
+#define KEY_NAME_SIZE 17
+#define KEY_DATA_SIZE 2048
 
 #define MAX_APP_ID 255
 
