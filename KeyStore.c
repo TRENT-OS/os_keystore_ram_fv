@@ -1,7 +1,7 @@
 
 #include "KeyStore.h"
 
-#include "fv_stdlib.h"
+#include "stdlib_fv.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -12,8 +12,8 @@ extern "C"
 static
 void reset_element_key(key_store_t *key_store, unsigned long index)
 {
-    memset(key_store->element_store[index].key.name, 0, KEY_NAME_SIZE);
-    memset(key_store->element_store[index].key.data, 0, KEY_DATA_SIZE);
+    memset_fv(key_store->element_store[index].key.name, 0, KEY_NAME_SIZE);
+    memset_fv(key_store->element_store[index].key.data, 0, KEY_DATA_SIZE);
 }
 
 
@@ -50,7 +50,7 @@ unsigned long find_element(key_store_t const *key_store, unsigned long max, cons
         if (!key_store->element_store[k].admin.is_free)
         {
             if (app_id == key_store->element_store[k].admin.app_id &&
-                0 == memcmp(name, (void *) key_store->element_store[k].key.name, KEY_NAME_SIZE))
+                0 == memcmp_fv(name, (void *) key_store->element_store[k].key.name, KEY_NAME_SIZE))
             {
                 return k;
             }
@@ -122,8 +122,8 @@ unsigned int key_store_init_with_read_only_keys(
         key_store->element_store[k].admin.is_free = 0;
         key_store->element_store[k].admin.app_id = app_ids[k];
         key_store->element_store[k].key.read_only = 1;
-        memcpy(key_store->element_store[k].key.name, keys[k].name, KEY_NAME_SIZE);
-        memcpy(key_store->element_store[k].key.data, keys[k].data, KEY_DATA_SIZE);
+        memcpy_fv(key_store->element_store[k].key.name, keys[k].name, KEY_NAME_SIZE);
+        memcpy_fv(key_store->element_store[k].key.data, keys[k].data, KEY_DATA_SIZE);
     }
 
     for (unsigned long k = nr_keys; k < key_store->max_elements; k++)
@@ -191,8 +191,8 @@ key_store_result_t key_store_add(key_store_t *key_store, unsigned int app_id, ke
     key_store->element_store[result.index].admin.app_id = app_id;
 
     key_store->element_store[result.index].key.read_only = 0;
-    memcpy(key_store->element_store[result.index].key.name, key->name, KEY_NAME_SIZE);
-    memcpy(key_store->element_store[result.index].key.data, key->data, KEY_DATA_SIZE);
+    memcpy_fv(key_store->element_store[result.index].key.name, key->name, KEY_NAME_SIZE);
+    memcpy_fv(key_store->element_store[result.index].key.data, key->data, KEY_DATA_SIZE);
 
     result.error = ERR_NONE;
     return result;
@@ -226,8 +226,8 @@ key_store_result_t key_store_get(key_store_t const *key_store, unsigned int app_
         return result;
     }
 
-    memcpy(key->name, key_store->element_store[result.index].key.name, KEY_NAME_SIZE);
-    memcpy(key->data, key_store->element_store[result.index].key.data, KEY_DATA_SIZE);
+    memcpy_fv(key->name, key_store->element_store[result.index].key.name, KEY_NAME_SIZE);
+    memcpy_fv(key->data, key_store->element_store[result.index].key.data, KEY_DATA_SIZE);
     key->read_only = key_store->element_store[result.index].key.read_only;
 
     result.error = ERR_NONE;
@@ -261,8 +261,8 @@ unsigned int key_store_get_by_index(key_store_t const *key_store, unsigned int a
         return ERR_INVALID_PARAMETER;
     }
 
-    memcpy(key->name, key_store->element_store[index].key.name, KEY_NAME_SIZE);
-    memcpy(key->data, key_store->element_store[index].key.data, KEY_DATA_SIZE);
+    memcpy_fv(key->name, key_store->element_store[index].key.name, KEY_NAME_SIZE);
+    memcpy_fv(key->data, key_store->element_store[index].key.data, KEY_DATA_SIZE);
     key->read_only = key_store->element_store[index].key.read_only;
 
     return ERR_NONE;
