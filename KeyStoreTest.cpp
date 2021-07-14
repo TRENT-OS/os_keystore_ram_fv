@@ -26,7 +26,7 @@ class KeyStore
     enum {NR_ELEMENTS = 16};
 
     KeyStore(unsigned int size = NR_ELEMENTS) : keystore_elements(size) {}
-    unsigned int size() const { keystore_elements.size(); }
+    unsigned int size() const { return keystore_elements.size(); }
     element_record_t *get_element_buf() { return &keystore_elements[0]; }
     key_store_t *operator & () {return &key_store;}
 
