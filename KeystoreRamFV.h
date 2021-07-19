@@ -4,7 +4,7 @@
 
 #pragma once
 
-#define KeystoreRamFV_KEY_NAME_SIZE 17
+#define KeystoreRamFV_KEY_NAME_SIZE 16
 #define KeystoreRamFV_KEY_DATA_SIZE 2048
 
 #define KeystoreRamFV_MAX_APP_ID 255
