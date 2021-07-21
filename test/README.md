@@ -1,16 +1,14 @@
 
 # Running the unit tests of the KeystoreRamFV
-Assuming we are in a directory `keystore` containg the following files:
+Assuming we are in the directory `test` containing the following files:
 
 ```
-build
-KeystoreRamFV.c
-KeystoreRamFV.h
+build.sh
 KeystoreRamFVTest.cpp
 ```
 
 ## Prepare googletest
-Assuming we are in the directory `keystore`:
+Assuming we are in the directory `test`:
 ```
 cd ..
 git clone https://github.com/google/googletest.git
@@ -31,7 +29,7 @@ libgtest.a
 have been created in `../googletest/build/lib`.
 
 ## Run the unit tests
-Assuming we are in the directory `keystore`:
+Assuming we are in the directory `test`:
 
 ```
 ./build
