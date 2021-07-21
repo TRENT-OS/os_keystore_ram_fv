@@ -38,8 +38,6 @@ class KeyStore
 static
 void create_key_name(unsigned int app_id, unsigned int some_value, char name[KeystoreRamFV_KEY_NAME_SIZE])
 {
-    static char line[32];
-
     for (unsigned int k = 0; k < KeystoreRamFV_KEY_NAME_SIZE; k++)
     {
         name[k] = '\0';
