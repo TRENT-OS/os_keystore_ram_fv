@@ -10,7 +10,7 @@
 
 extern "C"
 {
-#include "KeystoreRamFV.h"
+#include "../KeystoreRamFV.h"
 }
 
 
@@ -38,14 +38,12 @@ class KeyStore
 static
 void create_key_name(unsigned int app_id, unsigned int some_value, char name[KeystoreRamFV_KEY_NAME_SIZE])
 {
-    static char line[32];
-
     for (unsigned int k = 0; k < KeystoreRamFV_KEY_NAME_SIZE; k++)
     {
         name[k] = '\0';
     }
 
-    sprintf(name, "%08x:%08x", app_id, some_value);
+    snprintf(name, KeystoreRamFV_KEY_NAME_SIZE, "%04x:%04x", app_id, some_value);
 }
 
 
