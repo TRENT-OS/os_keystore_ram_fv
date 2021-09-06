@@ -14,13 +14,13 @@
 
 #define KeystoreRamFV_MAX_APP_ID 255
 
-#define KeystoreRamFV_ERR_NONE                 0
-#define KeystoreRamFV_ERR_GENERIC             -1
-#define KeystoreRamFV_ERR_INVALID_PARAMETER   -2
-#define KeystoreRamFV_ERR_OUT_OF_SPACE        -3
-#define KeystoreRamFV_ERR_DUPLICATED          -4
-#define KeystoreRamFV_ERR_NOT_FOUND           -5
-#define KeystoreRamFV_ERR_READ_ONLY           -6
+#define KeystoreRamFV_ERR_NONE                  ((unsigned int)  0)
+#define KeystoreRamFV_ERR_GENERIC               ((unsigned int) -1)
+#define KeystoreRamFV_ERR_INVALID_PARAMETER     ((unsigned int) -2)
+#define KeystoreRamFV_ERR_OUT_OF_SPACE          ((unsigned int) -3)
+#define KeystoreRamFV_ERR_DUPLICATED            ((unsigned int) -4)
+#define KeystoreRamFV_ERR_NOT_FOUND             ((unsigned int) -5)
+#define KeystoreRamFV_ERR_READ_ONLY             ((unsigned int) -6)
 
 
 typedef struct KeystoreRamFV_KeyRecord {
@@ -49,7 +49,7 @@ typedef struct KeystoreRamFV {
 } KeystoreRamFV_t;
 
 typedef struct KeystoreRamFV_Result {
-    signed error;
+    unsigned int error;
     unsigned long index;
 } KeystoreRamFV_Result_t;
 
