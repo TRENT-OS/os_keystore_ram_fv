@@ -198,6 +198,7 @@ KeystoreRamFV_add(
 
     if (0 == key_store->freeSlots)
     {
+        result.error = KeystoreRamFV_ERR_OUT_OF_SPACE;
         return result;
     }
 
