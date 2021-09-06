@@ -9,7 +9,7 @@
 #endif
 
 #if !defined(KeystoreRamFV_KEY_DATA_SIZE)
-#   define KeystoreRamFV_KEY_DATA_SIZE 2048
+#   define KeystoreRamFV_KEY_DATA_SIZE 2052
 #endif
 
 #define KeystoreRamFV_MAX_APP_ID 255
