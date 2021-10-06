@@ -1,3 +1,3 @@
 [submodule "stdlib"]
 	path = stdlib_fv
-	url = ../../fv/stdlib.git
+	url = https://bitbucket.hensoldt-cyber.systems/scm/gruv/stdlib
