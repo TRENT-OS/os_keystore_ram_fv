@@ -8,8 +8,15 @@
 #   define KeystoreRamFV_KEY_NAME_SIZE 16
 #endif
 
+/**
+ * This defines the maximum size of struct OS_KeystoreRamFV_DataSubRecord, which consists of
+ *  - a uint8_t array, containing the key data (size OS_KeystoreRamFV_MAX_KEY_SIZE bytes)
+ *  - a uint32_t variable, containing the size of the used key data (size 4 bytes)
+ *
+ * In a total, this results in a value of 2084 bytes.
+ */
 #if !defined(KeystoreRamFV_KEY_DATA_SIZE)
-#   define KeystoreRamFV_KEY_DATA_SIZE 2052
+#   define KeystoreRamFV_KEY_DATA_SIZE 2084
 #endif
 
 #define KeystoreRamFV_MAX_APP_ID 255
