@@ -1,3 +1,3 @@
 [submodule "stdlib"]
 	path = stdlib_fv
-	url = ../../gruv/stdlib
+	url = ../stdlib
